@@ -1,0 +1,90 @@
+// Color Variables
+$primary-color: #333333; // Dark Gray for primary text and borders
+$secondary-color: #f8f9fa; // Slightly lighter dark gray for secondary text
+$background-color: #fff; // Very light gray for backgrounds to contrast with dark colors
+$section-background-color: #e9ecef; // Light gray for section background to differentiate sections
+$border-color: #ced4da; // Light Gray for borders
+$invalid-feedback-color: #dc3545; // Red for errors
+$valid-feedback-color: #28a745; // Green for success messages
+$placeholder-color: #adb5bd; // Subtle gray for placeholder text
+$focus-color: rgba(0, 0, 0, 0.5); // Darker shadow for focus state
+$padding: 0.5rem; // Reduced padding for a more compact look
+$border-radius: 0.25rem; // Slightly smaller border radius for a sharper look
+$font-size-small: 0.75rem; // Smaller font size for form elements
+$section-padding: 1rem; // Padding for section content
+
+// Form Section Styles
+.form-section {
+  margin-bottom: 1.5rem;
+  background-color: $section-background-color; // Background color to differentiate sections
+  border: 1px solid $border-color; // Border to separate sections
+  border-radius: $border-radius; // Rounded corners for section
+  padding: $section-padding; // Padding inside the section
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); // Light shadow for section depth
+
+  .section-title {
+    font-size: 1rem; // Font size for section titles
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: $primary-color;
+  }
+
+  .row {
+    margin-bottom: 1rem;
+
+    .col-md-6, .col-md-3 {
+      padding-right: $padding;
+      padding-left: $padding;
+
+      .mb-3 {
+        .form-label {
+          font-weight: 500;
+          margin-bottom: 0.5rem;
+          color: $primary-color; // Match label color with primary
+          font-size: $font-size-small; // Smaller font size for labels
+        }
+
+        .form-control {
+          background-color: $background-color; // Light background for inputs
+          color: $primary-color; // Dark text color in inputs
+          border-radius: $border-radius;
+          border: 1px solid $border-color;
+          padding: 0.25rem 0.5rem; // Reduced padding for smaller input boxes
+          box-shadow: none;
+          font-size: $font-size-small; // Smaller font size for input text
+
+          &::placeholder {
+            color: $placeholder-color; // Subtle placeholder text color
+          }
+
+          &:focus {
+            border-color: $primary-color;
+            box-shadow: 0 0 0 0.2rem $focus-color; // Darker shadow for focus state
+          }
+
+          &.is-invalid {
+            border-color: $invalid-feedback-color;
+            background-color: #f8d7da; // Light red background for invalid inputs
+          }
+
+          &.is-valid {
+            border-color: $valid-feedback-color;
+            background-color: #d4edda; // Light green background for valid inputs
+          }
+        }
+
+        .invalid-feedback {
+          color: $invalid-feedback-color;
+          font-size: 0.75rem; // Smaller font size for error messages
+          margin-top: 0.25rem; // Spacing above error messages
+        }
+
+        .valid-feedback {
+          color: $valid-feedback-color;
+          font-size: 0.75rem; // Smaller font size for success messages
+          margin-top: 0.25rem; // Spacing above success messages
+        }
+      }
+    }
+  }
+}

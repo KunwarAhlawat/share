@@ -1,0 +1,73 @@
+<%- include('../../partials/header.ejs', { title: title }) %>
+
+<div class="page-content">
+  <!-- Main sidebar -->
+  <%- include('../../partials/sidebar.ejs') %>
+  <!-- /main sidebar -->
+
+  <!-- Main content -->
+  <div class="content-wrapper">
+    <!-- Main navbar -->
+	<%- include('../../component/dashboard/navbar.ejs') %>
+    <!-- /main navbar -->
+
+    <!-- Inner content -->
+    <div class="content-inner">
+    
+
+      <!-- Content area -->
+      <div class="content">
+        <!-- Nested object data -->
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">All Products </h5>
+                <!-- <button class="btn btn-light">Add Customer</button> -->
+                <!-- Button to trigger modal -->
+                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#add-product-model">Add Product<i class="ph ph-user ms-2"></i></button>
+            </div>
+           
+            
+          </div>
+
+       
+          <!-- Hidden element to pass JSON data to the JavaScript file -->
+          <script type="application/json" id="firmsData"> <%- JSON.stringify({ data: modifiedData, label: "products" }) %> </script>
+        
+          
+          
+          
+        
+            <table class="table datatable-nested ">
+              <thead>
+                <tr>
+                  <th>Products</th>
+				  <th>Product Groups</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+			  <tbody>
+				<!-- Data will be dynamically injected here -->
+			  </tbody>
+            </table>
+        
+        </div>
+        <!-- /nested object data -->
+
+        
+      </div>
+      <!-- /content area -->
+    </div>
+    <!-- /inner content -->
+  </div>
+  <!-- /main content -->
+</div>
+<!-- /page content -->
+
+
+
+<div id="add-product-model" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+    <%- include('../../model/addProductModel.ejs') %>
+</div>
+
+<%- include('../../partials/footer') %>

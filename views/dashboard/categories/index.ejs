@@ -1,0 +1,139 @@
+<%- include('../../partials/header.ejs', { title: title }) %>
+
+  <div class="page-content">
+    <!-- Main sidebar -->
+    <%- include('../../partials/sidebar.ejs') %>
+      <!-- /main sidebar -->
+
+      <!-- Main content -->
+      <div class="content-wrapper">
+        <!-- Main navbar -->
+        <%- include('../../component/dashboard/navbar.ejs') %>
+          <!-- /main navbar -->
+
+          <!-- Inner content -->
+          <div class="content-inner">
+
+
+            <!-- Content area -->
+            <div class="content">
+              <!-- Nested object data -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">All Categories </h5>
+
+                    <!-- Button to trigger modal -->
+                    <button type="button" class="btn btn-light" data-bs-toggle="modal"
+                      data-bs-target="#add-category-model">Add Category<i class="ph ph-user ms-2"></i></button>
+                  </div>
+
+
+                </div>
+
+
+                <!-- Hidden element to pass JSON data to the JavaScript file -->
+                <script type="application/json"
+                  id="data"> <%- JSON.stringify({ data: data, label: "categories" }) %> </script>
+
+
+
+
+
+                <table class="table datatable-nested ">
+                  <thead>
+                    <tr>
+                      <th>Categories</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Data will be dynamically injected here -->
+                  </tbody>
+                </table>
+
+              </div>
+              <!-- /nested object data -->
+
+
+            </div>
+            <!-- /content area -->
+          </div>
+          <!-- /inner content -->
+      </div>
+      <!-- /main content -->
+  </div>
+  <!-- /page content -->
+
+
+
+  <!-- add category model -->
+  <div id="add-category-model" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-full"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Category </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/dashboard/category/create" method="POST" enctype="">
+          <!-- Area Information -->
+          <div class="form-section mb-4">
+            <h4 class="mb-3">Category Information</h4>
+            <div class="row">
+              <!-- Category Name -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="category_name" class="form-label">Category*</label>
+                  <input type="text" id="category_name" class="form-control" name="category_name" minlength="4"
+                    maxlength="20" required pattern="[A-Za-z\s'-]+" value="">
+                  <small class="form-text text-muted">Enter the category name as per official documents.</small>
+
+                </div>
+              </div>
+
+               <!-- Select Customer -->
+              <div class="col-md-6">
+              
+                <div class="mb-3">
+                  <label class="form-label"><span class="fw-semibold">Select Customers</span></label>
+                  
+                  <select class="form-control multiselect" multiple="multiple" data-include-select-all-option="true"
+                    data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                    <option value="cheese">Cheese</option>
+                    <option value="tomatoes">Tomatoes</option>
+                    <option value="mozarella">Mozzarella</option>
+                    <option value="mushrooms">Mushrooms</option>
+                  </select>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+
+
+      </div>
+    </div>
+  </div>
+  <script>
+    // $(document).ready(function() {
+    //     $('.multiselect').multiselect({
+    //         includeSelectAllOption: true,
+    //         enableFiltering: true,
+    //         enableCaseInsensitiveFiltering: true
+    //     });
+    // });
+  </script>
+  <%- include('../../partials/footer') %>
