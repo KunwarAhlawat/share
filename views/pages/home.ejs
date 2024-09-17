@@ -3,12 +3,131 @@
 
 <%- include('../component/website/navbar') %>
 
+<style>
+/* The actual timeline (the vertical ruler) */
+.main-timeline {
+  position: relative;
+}
+
+/* The actual timeline (the vertical ruler) */
+.main-timeline::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  background-color: #939597;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  margin-left: -3px;
+}
+
+/* Container around content */
+.timeline {
+  position: relative;
+  background-color: inherit;
+  width: 50%;
+}
+
+/* The circles on the timeline */
+.timeline::after {
+  content: "";
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  right: -13px;
+  background-color: #939597;
+  border: 5px solid #f5df4d;
+  top: 15px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* Place the container to the left */
+.left {
+  padding: 0px 40px 20px 0px;
+  left: 0;
+}
+
+/* Place the container to the right */
+.right {
+  padding: 0px 0px 20px 40px;
+  left: 50%;
+}
+
+/* Add arrows to the left container (pointing right) */
+.left::before {
+  content: " ";
+  position: absolute;
+  top: 18px;
+  z-index: 1;
+  right: 30px;
+  border: medium solid white;
+  border-width: 10px 0 10px 10px;
+  border-color: transparent transparent transparent white;
+}
+
+/* Add arrows to the right container (pointing left) */
+.right::before {
+  content: " ";
+  position: absolute;
+  top: 18px;
+  z-index: 1;
+  left: 30px;
+  border: medium solid white;
+  border-width: 10px 10px 10px 0;
+  border-color: transparent white transparent transparent;
+}
+
+/* Fix the circle for containers on the right side */
+.right::after {
+  left: -12px;
+}
+
+/* Media queries - Responsive timeline on screens less than 600px wide */
+@media screen and (max-width: 600px) {
+  /* Place the timelime to the left */
+  .main-timeline::after {
+    left: 31px;
+  }
+
+  /* Full-width containers */
+  .timeline {
+    width: 100%;
+    padding-left: 70px;
+    padding-right: 25px;
+  }
+
+  /* Make sure that all arrows are pointing leftwards */
+  .timeline::before {
+    left: 60px;
+    border: medium solid white;
+    border-width: 10px 10px 10px 0;
+    border-color: transparent white transparent transparent;
+  }
+
+  /* Make sure all circles are at the same spot */
+  .left::after,
+  .right::after {
+    left: 18px;
+  }
+
+  .left::before {
+    right: auto;
+  }
+
+  /* Make all right containers behave like the left ones */
+  .right {
+    left: 0%;
+  }
+}
+</style>
+
 <%- include('../component/website/spinner') %>
  <!-- Carousel Start -->
  <div class="container-fluid p-0 pb-5">
   <div class="owl-carousel header-carousel position-relative mb-5">
     <div class="owl-carousel-item position-relative">
-      <img class="img-fluid" src="/website/img/carousel-1.jpg" alt="" />
+      <img class="img-fluid" src="/website/img/home-hero.jpg" alt="" />
       <div
         class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center"
         style="background: rgba(6, 3, 21, 0.5)"
@@ -19,24 +138,22 @@
               <h5
                 class="text-white text-uppercase mb-3 animated slideInDown"
               >
-                Transport & Logistics Solution
+              Trusted in Trading Since 1950
               </h5>
               <h1 class="display-3 text-white animated slideInDown mb-4">
-                #1 Place For Your
-                <span class="text-primary">Logistics</span> Solution
+                India's Leading <br>
+                <span class="text-primary">Coal </span> Provider
               </h1>
               <p class="fs-5 fw-medium text-white mb-4 pb-2">
-                Vero elitr justo clita lorem. Ipsum dolor at sed stet sit
-                diam no. Kasd rebum ipsum et diam justo clita et kasd rebum
-                sea elitr.
+                We handle sourcing, storage, and transportation, ensuring quality <br> when supplying commodities to customers
               </p>
-              <a
+              <!-- <a
                 href=""
                 class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft"
-                >Read More</a
+                >Read More</a -->
               >
               <a
-                href=""
+                href="#cta"
                 class="btn btn-secondary py-md-3 px-md-5 animated slideInRight"
                 >Free Quote</a
               >
@@ -46,41 +163,39 @@
       </div>
     </div>
     <div class="owl-carousel-item position-relative">
-      <img class="img-fluid" src="/website/img/carousel-2.jpg" alt="" />
+      <img class="img-fluid" src="/website/img/home-hero-2.jpg" alt="" />
       <div
         class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center"
         style="background: rgba(6, 3, 21, 0.5)"
       >
-        <div class="container">
-          <div class="row justify-content-start">
-            <div class="col-10 col-lg-8">
-              <h5
-                class="text-white text-uppercase mb-3 animated slideInDown"
-              >
-                Transport & Logistics Solution
-              </h5>
-              <h1 class="display-3 text-white animated slideInDown mb-4">
-                #1 Place For Your
-                <span class="text-primary">Transport</span> Solution
-              </h1>
-              <p class="fs-5 fw-medium text-white mb-4 pb-2">
-                Vero elitr justo clita lorem. Ipsum dolor at sed stet sit
-                diam no. Kasd rebum ipsum et diam justo clita et kasd rebum
-                sea elitr.
-              </p>
-              <a
-                href=""
-                class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft"
-                >Read More</a
-              >
-              <a
-                href=""
-                class="btn btn-secondary py-md-3 px-md-5 animated slideInRight"
-                >Free Quote</a
-              >
-            </div>
+      <div class="container">
+        <div class="row justify-content-start">
+          <div class="col-10 col-lg-8">
+            <h5
+              class="text-white text-uppercase mb-3 animated slideInDown"
+            >
+            Trusted in Trading Since 1950
+            </h5>
+            <h1 class="display-3 text-white animated slideInDown mb-4">
+              India's Leading <br>
+              <span class="text-primary">Coal </span> Provider
+            </h1>
+            <p class="fs-5 fw-medium text-white mb-4 pb-2">
+              We handle sourcing, storage, and transportation, ensuring quality <br> when supplying commodities to customers
+            </p>
+            <!-- <a
+              href=""
+              class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft"
+              >Read More</a -->
+            >
+            <a
+              href="#cta"
+              class="btn btn-secondary py-md-3 px-md-5 animated slideInRight"
+              >Free Quote</a
+            >
           </div>
         </div>
+      </div>
       </div>
     </div>
   </div>
@@ -99,7 +214,7 @@
         <div class="position-relative h-100">
           <img
             class="position-absolute img-fluid w-100 h-100"
-            src="/website/img/about.jpg"
+            src="/website/img/home-about.jpg"
             style="object-fit: cover"
             alt=""
           />
@@ -107,7 +222,7 @@
       </div>
       <div class="col-lg-6 about-text wow fadeInUp" data-wow-delay="0.3s">
         <h6 class="text-secondary text-uppercase mb-3">About Us</h6>
-        <h1 class="mb-5">Quick Transport and Logistics Solutions</h1>
+        <h1 class="mb-5">70+ Years of Industry Expertise</h1>
         <p class="mb-3">
           Established in 1950, Jindal Trading Co, is well versed to serve
           industries by providing best suited, Favourable and Economical raw
@@ -129,22 +244,20 @@
         <div class="row g-4 mb-5">
           <div class="col-sm-6 wow fadeIn" data-wow-delay="0.5s">
             <i class="fa fa-globe fa-3x text-primary mb-3"></i>
-            <h5>Global Coverage</h5>
+            <h5>All India Reach</h5>
             <p class="m-0">
-              Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam
-              lorem diam justo.
+              Providing top-quality raw materials nationwide with over 70 years of trusted expertise.
             </p>
           </div>
           <div class="col-sm-6 wow fadeIn" data-wow-delay="0.7s">
             <i class="fa fa-shipping-fast fa-3x text-primary mb-3"></i>
             <h5>On Time Delivery</h5>
             <p class="m-0">
-              Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam
-              lorem diam justo.
+              We ensure timely delivery of high-quality raw materials to our clients, with a focus on reliability.
             </p>
           </div>
         </div>
-        <a href="" class="btn btn-primary py-3 px-5">Explore More</a>
+        <!-- <a href="" class="btn btn-primary py-3 px-5">Explore More</a> -->
       </div>
     </div>
   </div>
@@ -152,12 +265,12 @@
 <!-- About End -->
 
 <!-- Our Mission and Vision start -->
-<div class="container-xxl py-5">
+<div class="container-xxl py-5 bg-light">
   <div class="container py-5">
     <div class="row g-5">
       <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
         <h6 class="text-secondary text-uppercase mb-3">Our Mission</h6>
-        <h1 class="mb-5">#1 Place To Manage All Of Your Shipments</h1>
+        <h1 class="mb-5">Committed to Excellence and Sustainable Practices</h1>
         <p class="mb-5">
           At Jindal Trading Co., we strive to maximize our core strengths
           through top-notch business practices. We aim to deliver
@@ -167,19 +280,22 @@
           health and safety, environmental sustainability, and community
           development.
         </p>
-        <div class="d-flex align-items-center">
-          <i
-            class="fa fa-headphones fa-2x flex-shrink-0 bg-primary p-3 text-white"
-          ></i>
-          <div class="ps-4">
-            <h6>Call for any query!</h6>
-            <h3 class="text-primary m-0">+012 345 6789</h3>
+
+        <a href="https://wa.me/919690901694" target="_blank">
+          <div class="d-flex align-items-center">
+            <i class="fa fa-headphones fa-2x flex-shrink-0 bg-primary p-3 text-white"></i>
+        
+            <div class="ps-4">
+              <h6>Call for any query!</h6>
+              <h3 class="text-primary m-0">+91 9690901694</h3>
+            </div>
           </div>
-        </div>
+        </a>
+
       </div>
       <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
         <h6 class="text-secondary text-uppercase mb-3">Our Vision</h6>
-        <h1 class="mb-5">#1 Place To Manage All Of Your Shipments</h1>
+        <h1 class="mb-5">Excellence, Ethics, and Sustainable Growth</h1>
         <p class="mb-5">
           Delivering the best customer service at cost-effective rates, our
           company is committed to providing premium products. We aim to
@@ -189,15 +305,7 @@
           sustainable long-term growth while minimizing environmental
           impact.
         </p>
-        <div class="d-flex align-items-center">
-          <i
-            class="fa fa-headphones fa-2x flex-shrink-0 bg-primary p-3 text-white"
-          ></i>
-          <div class="ps-4">
-            <h6>Call for any query!</h6>
-            <h3 class="text-primary m-0">+012 345 6789</h3>
-          </div>
-        </div>
+  
       </div>
       <!-- <div class="col-lg-6">
                 <div class="row g-4 align-items-center">
@@ -235,447 +343,231 @@
       <h1 class="mb-5">Explore Our Products</h1>
     </div>
     <div class="row g-4">
+      <!-- Product Item Start -->
       <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
         <div class="service-item p-4">
           <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/service-1.jpg" alt="" />
+            <img class="img-fluid" src="/website/img/product-coal.webp" alt="Coal Image" style="max-height: 400px; min-height: 200px; object-fit: cover;" />
           </div>
           <h4 class="mb-3">COAL</h4>
-          <p>
-            Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem
-            diam.
-          </p>
-          <a class="btn-slide mt-2" href=""
-            ><i class="fa fa-arrow-right"></i><span>Read More</span></a
-          >
+          <p>Supplying premium coal for energy, steel, and specialized industry needs.</p>
+          <a class="btn-slide mt-2" href="/product/coal"><i class="fa fa-arrow-right"></i><span>Read More</span></a>
         </div>
       </div>
+      <!-- Product Item End -->
+
+      <!-- Product Item Start -->
       <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
         <div class="service-item p-4">
           <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/service-2.jpg" alt="" />
+            <img class="img-fluid" src="/website/img/product-coke.jpg" alt="Coke Image" style="max-height: 400px; min-height: 200px; object-fit: cover;" />
           </div>
           <h4 class="mb-3">COKE</h4>
-          <p>
-            Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem
-            diam.
-          </p>
-          <a class="btn-slide mt-2" href=""
-            ><i class="fa fa-arrow-right"></i><span>Read More</span></a
-          >
+          <p>Supplying premium coke for steelmaking and diverse industrial applications.</p>
+          <a class="btn-slide mt-2" href="/product/coke"><i class="fa fa-arrow-right"></i><span>Read More</span></a>
         </div>
       </div>
+      <!-- Product Item End -->
+
+      <!-- Product Item Start -->
       <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.7s">
         <div class="service-item p-4">
           <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/service-3.jpg" alt="" />
+            <img class="img-fluid" src="/website/img/product-charcoal.jpg" alt="Charcoal Image" style="max-height: 400px; min-height: 200px; object-fit: cover;" />
           </div>
           <h4 class="mb-3">CHARCOAL</h4>
-          <p>
-            Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem
-            diam.
-          </p>
-          <a class="btn-slide mt-2" href=""
-            ><i class="fa fa-arrow-right"></i><span>Read More</span></a
-          >
+          <p>High-quality charcoal for chemical, metallurgy, and industrial furnace applications.</p>
+          <a class="btn-slide mt-2" href="/product/charcoal"><i class="fa fa-arrow-right"></i><span>Read More</span></a>
         </div>
       </div>
+      <!-- Product Item End -->
+
+      <!-- Product Item Start -->
       <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
         <div class="service-item p-4">
           <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/service-4.jpg" alt="" />
+            <img class="img-fluid" src="/website/img/product-coaldust.jpg" alt="Coal Dust Image" style="max-height: 400px; min-height: 200px; object-fit: cover;" />
           </div>
           <h4 class="mb-3">COAL DUST</h4>
-          <p>
-            Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem
-            diam.
-          </p>
-          <a class="btn-slide mt-2" href=""
-            ><i class="fa fa-arrow-right"></i><span>Read More</span></a
-          >
+          <p>Consistent coal dust for smooth surfaces in foundry molding applications.</p>
+          <a class="btn-slide mt-2" href="/product/coal-dust"><i class="fa fa-arrow-right"></i><span>Read More</span></a>
         </div>
       </div>
+      <!-- Product Item End -->
+
+      <!-- Product Item Start -->
       <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
         <div class="service-item p-4">
           <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/service-5.jpg" alt="" />
+            <img class="img-fluid" src="/website/img/product-pigiron.jpg" alt="Pig Iron Image" style="max-height: 400px; min-height: 200px; object-fit: cover;" />
           </div>
           <h4 class="mb-3">PIG IRON</h4>
-          <p>
-            Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem
-            diam.
-          </p>
-          <a class="btn-slide mt-2" href=""
-            ><i class="fa fa-arrow-right"></i><span>Read More</span></a
-          >
+          <p>Premium pig iron for steelmaking, casting, and industrial manufacturing needs.</p>
+          <a class="btn-slide mt-2" href="/product/pig-iron"><i class="fa fa-arrow-right"></i><span>Read More</span></a>
         </div>
       </div>
+      <!-- Product Item End -->
+
+      <!-- Product Item Start -->
       <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.7s">
         <div class="service-item p-4">
           <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/service-6.jpg" alt="" />
+            <img class="img-fluid" src="/website/img/product-ferro-alloys.jpg" alt="Ferro Alloys Image" style="max-height: 400px; min-height: 200px; object-fit: cover;" />
           </div>
           <h4 class="mb-3">FERRO ALLOYS</h4>
-          <p>
-            Stet stet justo dolor sed duo. Ut clita sea sit ipsum diam lorem
-            diam.
-          </p>
-          <a class="btn-slide mt-2" href=""
-            ><i class="fa fa-arrow-right"></i><span>Read More</span></a
-          >
+          <p>High-grade ferro alloys for enhancing steel and cast iron properties.</p>
+          <a class="btn-slide mt-2" href="/product/ferro-alloys"><i class="fa fa-arrow-right"></i><span>Read More</span></a>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-<!-- Our Product  End -->
+      <!-- Product Item End -->
 
-<!-- WHy Us Start -->
-<div class="container-fluid overflow-hidden py-5 px-lg-0">
-<div class="container feature py-5 px-lg-0">
-  <div class="row g-5 mx-lg-0">
-    <div class="col-lg-6 feature-text wow fadeInUp" data-wow-delay="0.1s">
-      <h6 class="text-secondary text-uppercase mb-3">Our Features</h6>
-      <h1 class="mb-5">We Are Trusted Logistics Company Since 1990</h1>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.3s">
-        <i class="fa fa-globe text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>QUALITY AND CUSTOMIZABLE PRODUCTS.</h5>
-        </div>
-      </div>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.5s">
-        <i class="fa fa-shipping-fast text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>COMPETITIVE PRICING POLICY</h5>
-        </div>
-      </div>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
-        <i class="fa fa-truck text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>TIMELY DELIVERY OF ORDERS</h5>
-        </div>
-      </div>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
-        <i class="fa fa-network-wired text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>STRONG AND REPUTED SUPPLY CHAIN NETWORK</h5>
-        </div>
-      </div>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
-        <i class="fa fa-sitemap text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>EXPANDED NETWORKING WEB</h5>
-        </div>
-      </div>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
-        <i class="fa fa-handshake text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>ETHICAL BUSINESS APPROACHES</h5>
-        </div>
-      </div>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
-        <i class="fa fa-industry text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>
-            RICH INDUSTRY EXPERIENCE OF TRADING SINCE LAST OVER 70+ YEARS
-          </h5>
-        </div>
-      </div>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
-        <i class="fa fa-users text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>
-            STRONG EMBEDDED VALUES OF BUILDING PARTNERS NOT CLIENTS ACROSS
-            ALL LEVELS
-          </h5>
-        </div>
-      </div>
-      <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
-        <i class="fa fa-briefcase text-primary fa-2x flex-shrink-0"></i>
-        <div class="ms-4">
-          <h5>
-            CONSULTANCY SERVICES AVAILABLE FOR DECIDING THE BEST PRODUCT SUITED TO OUR PARTNERS' NEEDS
-          </h5>
-        </div>
-      </div>
-    </div>
-    <div
-      class="col-lg-6 pe-lg-0 wow fadeInRight"
-      data-wow-delay="0.1s"
-      style="min-height: 400px"
-    >
-      <div class="position-relative h-100">
-        <img
-          class="position-absolute img-fluid w-100 h-100"
-          src="/website/img/feature.jpg"
-          style="object-fit: cover"
-          alt=""
-        />
-      </div>
     </div>
   </div>
 </div>
+<!-- Our Product End -->
+
+<!-- Our Journey Start -->
+<section class="container-xxl py-5" style="background-color: #F0F2F5;">
+  <div class="container py-5">
+    <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+      <h1 class="mb-5">Journey Through Time</h1>
+    </div>
+    <div class="main-timeline wow fadeInUp " data-wow-delay="0.3s">
+      <div class="timeline left">
+        <div class="card">
+          <div class="card-body p-4">
+            <h3>1950</h3>
+            <p class="mb-0">Started by Late Shree Ved Prakash Aggarwal as a small coal outlet catering to nearby retail clients.</p>
+          </div>
+        </div>
+      </div>
+      <div class="timeline right">
+        <div class="card">
+          <div class="card-body p-4">
+            <h3>1984</h3>
+            <p class="mb-0">The Trading Business was renamed as Jindal Coal Depo by his late son Late Shree Mukesh Jindal covering entire Meerut city and Mujaffarnagar, Shamli, Saharanpur, etc.</p>
+          </div>
+        </div>
+      </div>
+      <div class="timeline left">
+        <div class="card">
+          <div class="card-body p-4">
+            <h3>2004</h3>
+            <p class="mb-0">Further renamed as Jindal Trading Co. to specify the nature of business which includes trading of Pig Iron, Carbon, Ferro Alloys, etc., with a distribution network in North India.</p>
+          </div>
+        </div>
+      </div>
+      <div class="timeline right">
+        <div class="card">
+          <div class="card-body p-4">
+            <h3>2020</h3>
+            <p class="mb-0">Jindal Trading Company now has its distribution network across the entire nation along with coastline countries too.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Our Journey End -->
+
+
+
+<!-- Why Us Start -->
+<div class="container-fluid overflow-hidden py-5 px-lg-0">
+  <div class="container feature py-5 px-lg-0">
+    <div class="row g-5 mx-lg-0">
+      <div class="col-lg-6 feature-text wow fadeInUp" data-wow-delay="0.1s">
+        <h6 class="text-secondary text-uppercase mb-3">Why Choose Us?</h6>
+        <h1 class="mb-5">We Are Trusted Trading Company Since 1950</h1>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.3s">
+          <i class="fas fa-check-circle text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>QUALITY AND CUSTOMIZABLE PRODUCTS.</h5>
+          </div>
+        </div>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.5s">
+          <i class="fas fa-tag text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>COMPETITIVE PRICING POLICY</h5>
+          </div>
+        </div>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
+          <i class="fas fa-clock text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>TIMELY DELIVERY OF ORDERS</h5>
+          </div>
+        </div>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
+          <i class="fas fa-network-wired text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>STRONG AND REPUTED SUPPLY CHAIN NETWORK</h5>
+          </div>
+        </div>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
+          <i class="fas fa-sitemap text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>EXPANDED NETWORKING WEB</h5>
+          </div>
+        </div>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
+          <i class="fas fa-handshake text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>ETHICAL BUSINESS APPROACHES</h5>
+          </div>
+        </div>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
+          <i class="fas fa-industry text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>RICH INDUSTRY EXPERIENCE OF TRADING SINCE LAST OVER 70+ YEARS</h5>
+          </div>
+        </div>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
+          <i class="fas fa-users text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>STRONG EMBEDDED VALUES OF BUILDING PARTNERS, NOT CLIENTS</h5>
+          </div>
+        </div>
+        
+        <div class="d-flex mb-5 wow fadeInUp" data-wow-delay="0.7s">
+          <i class="fas fa-briefcase text-primary fa-2x flex-shrink-0"></i>
+          <div class="ms-4">
+            <h5>CONSULTANCY SERVICES TO MATCH PRODUCTS TO CLIENTS' NEEDS</h5>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 pe-lg-0 wow fadeInRight" data-wow-delay="0.1s" style="min-height: 400px">
+        <div class="position-relative h-100">
+          <img class="position-absolute img-fluid w-100 h-100" src="/website/img/home-why-us.jpg" style="object-fit: cover" alt="" />
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- Why Us End -->
 
 
 
+
 <!-- Quote Start -->
-<div class="container-xxl py-5">
-  <div class="container py-5">
-    <div class="row g-5 align-items-center">
-      <div class="col-lg-5 wow fadeInUp" data-wow-delay="0.1s">
-        <h6 class="text-secondary text-uppercase mb-3">Get A Quote</h6>
-        <h1 class="mb-5">Request A Free Qoute!</h1>
-        <p class="mb-5">
-          Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu
-          diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet
-          lorem sit clita duo justo erat amet
-        </p>
-        <div class="d-flex align-items-center">
-          <i
-            class="fa fa-headphones fa-2x flex-shrink-0 bg-primary p-3 text-white"
-          ></i>
-          <div class="ps-4">
-            <h6>Call for any query!</h6>
-            <h3 class="text-primary m-0">+012 345 6789</h3>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-7">
-        <div
-          class="bg-light text-center p-5 wow fadeIn"
-          data-wow-delay="0.5s"
-        >
-          <form>
-            <div class="row g-3">
-              <div class="col-12 col-sm-6">
-                <input
-                  type="text"
-                  class="form-control border-0"
-                  placeholder="Your Name"
-                  style="height: 55px"
-                />
-              </div>
-              <div class="col-12 col-sm-6">
-                <input
-                  type="email"
-                  class="form-control border-0"
-                  placeholder="Your Email"
-                  style="height: 55px"
-                />
-              </div>
-              <div class="col-12 col-sm-6">
-                <input
-                  type="text"
-                  class="form-control border-0"
-                  placeholder="Your Mobile"
-                  style="height: 55px"
-                />
-              </div>
-              <div class="col-12 col-sm-6">
-                <select class="form-select border-0" style="height: 55px">
-                  <option selected>Select A Freight</option>
-                  <option value="1">Freight 1</option>
-                  <option value="2">Freight 2</option>
-                  <option value="3">Freight 3</option>
-                </select>
-              </div>
-              <div class="col-12">
-                <textarea
-                  class="form-control border-0"
-                  placeholder="Special Note"
-                ></textarea>
-              </div>
-              <div class="col-12">
-                <button class="btn btn-primary w-100 py-3" type="submit">
-                  Submit
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<%- include('../component/website/quote') %>
 <!-- Quote End -->
 
+
 <!-- Team Start -->
-<div class="container-xxl py-5">
-  <div class="container py-5">
-    <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
-      <h6 class="text-secondary text-uppercase">Our Team</h6>
-      <h1 class="mb-5">Expert Team Members</h1>
-    </div>
-    <div class="row g-4">
-      <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-        <div class="team-item p-4">
-          <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/team-1.jpg" alt="" />
-          </div>
-          <h5 class="mb-0">Full Name</h5>
-          <p>Designation</p>
-          <div class="btn-slide mt-1">
-            <i class="fa fa-share"></i>
-            <span>
-              <a href=""><i class="fab fa-facebook-f"></i></a>
-              <a href=""><i class="fab fa-twitter"></i></a>
-              <a href=""><i class="fab fa-instagram"></i></a>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-        <div class="team-item p-4">
-          <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/team-2.jpg" alt="" />
-          </div>
-          <h5 class="mb-0">Full Name</h5>
-          <p>Designation</p>
-          <div class="btn-slide mt-1">
-            <i class="fa fa-share"></i>
-            <span>
-              <a href=""><i class="fab fa-facebook-f"></i></a>
-              <a href=""><i class="fab fa-twitter"></i></a>
-              <a href=""><i class="fab fa-instagram"></i></a>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.7s">
-        <div class="team-item p-4">
-          <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/team-3.jpg" alt="" />
-          </div>
-          <h5 class="mb-0">Full Name</h5>
-          <p>Designation</p>
-          <div class="btn-slide mt-1">
-            <i class="fa fa-share"></i>
-            <span>
-              <a href=""><i class="fab fa-facebook-f"></i></a>
-              <a href=""><i class="fab fa-twitter"></i></a>
-              <a href=""><i class="fab fa-instagram"></i></a>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.9s">
-        <div class="team-item p-4">
-          <div class="overflow-hidden mb-4">
-            <img class="img-fluid" src="/website/img/team-4.jpg" alt="" />
-          </div>
-          <h5 class="mb-0">Full Name</h5>
-          <p>Designation</p>
-          <div class="btn-slide mt-1">
-            <i class="fa fa-share"></i>
-            <span>
-              <a href=""><i class="fab fa-facebook-f"></i></a>
-              <a href=""><i class="fab fa-twitter"></i></a>
-              <a href=""><i class="fab fa-instagram"></i></a>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<%- include('../component/website/team') %>
 <!-- Team End -->
 
+
 <!-- Testimonial Start -->
-<div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
-  <div class="container py-5">
-    <div class="text-center">
-      <h6 class="text-secondary text-uppercase">Testimonial</h6>
-      <h1 class="mb-0">Our Clients Say!</h1>
-    </div>
-    <div
-      class="owl-carousel testimonial-carousel wow fadeInUp"
-      data-wow-delay="0.1s"
-    >
-      <div class="testimonial-item p-4 my-5">
-        <i
-          class="fa fa-quote-right fa-3x text-light position-absolute top-0 end-0 mt-n3 me-4"
-        ></i>
-        <div class="d-flex align-items-end mb-4">
-          <img
-            class="img-fluid flex-shrink-0"
-            src="/website/img/testimonial-1.jpg"
-            style="width: 80px; height: 80px"
-          />
-          <div class="ms-4">
-            <h5 class="mb-1">Client Name</h5>
-            <p class="m-0">Profession</p>
-          </div>
-        </div>
-        <p class="mb-0">
-          Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam
-          amet diam et eos. Clita erat ipsum et lorem et sit.
-        </p>
-      </div>
-      <div class="testimonial-item p-4 my-5">
-        <i
-          class="fa fa-quote-right fa-3x text-light position-absolute top-0 end-0 mt-n3 me-4"
-        ></i>
-        <div class="d-flex align-items-end mb-4">
-          <img
-            class="img-fluid flex-shrink-0"
-            src="/website/img/testimonial-2.jpg"
-            style="width: 80px; height: 80px"
-          />
-          <div class="ms-4">
-            <h5 class="mb-1">Client Name</h5>
-            <p class="m-0">Profession</p>
-          </div>
-        </div>
-        <p class="mb-0">
-          Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam
-          amet diam et eos. Clita erat ipsum et lorem et sit.
-        </p>
-      </div>
-      <div class="testimonial-item p-4 my-5">
-        <i
-          class="fa fa-quote-right fa-3x text-light position-absolute top-0 end-0 mt-n3 me-4"
-        ></i>
-        <div class="d-flex align-items-end mb-4">
-          <img
-            class="img-fluid flex-shrink-0"
-            src="/website/img/testimonial-3.jpg"
-            style="width: 80px; height: 80px"
-          />
-          <div class="ms-4">
-            <h5 class="mb-1">Client Name</h5>
-            <p class="m-0">Profession</p>
-          </div>
-        </div>
-        <p class="mb-0">
-          Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam
-          amet diam et eos. Clita erat ipsum et lorem et sit.
-        </p>
-      </div>
-      <div class="testimonial-item p-4 my-5">
-        <i
-          class="fa fa-quote-right fa-3x text-light position-absolute top-0 end-0 mt-n3 me-4"
-        ></i>
-        <div class="d-flex align-items-end mb-4">
-          <img
-            class="img-fluid flex-shrink-0"
-            src="/website/img/testimonial-4.jpg"
-            style="width: 80px; height: 80px"
-          />
-          <div class="ms-4">
-            <h5 class="mb-1">Client Name</h5>
-            <p class="m-0">Profession</p>
-          </div>
-        </div>
-        <p class="mb-0">
-          Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit diam
-          amet diam et eos. Clita erat ipsum et lorem et sit.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
+<%- include('../component/website/testimonial') %>
 <!-- Testimonial End -->
 
 <%- include('../partials/websiteFooter') %>

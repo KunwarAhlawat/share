@@ -90,6 +90,28 @@
     });
 
 
+   // Team carousel
+$(".team-carousel").owlCarousel({
+    autoplay: false,
+    smartSpeed: 1000,
+    dots: true,
+    loop: true,
+    margin: 15, // Adjust as needed
+    responsive: {
+        0: {
+            items: 1
+        },
+        768: {
+            items: 2
+        },
+        992: {
+            items: 4
+        }
+    }
+});
+
+
+
     // Testimonials carousel
     $(".testimonial-carousel").owlCarousel({
         autoplay: false,

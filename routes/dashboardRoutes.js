@@ -46,6 +46,8 @@ router.get('/dashboard/areas',areasController.getAllArea );
 router.post('/dashboard/area/create', areasController.createArea);
 router.post('/dashboard/area/update/edit/:id', areasController.updateArea);
 router.delete('/dashboard/area/delete/:id', areasController.deleteArea);
+// apis
+router.get('/api/dashboard/areas', areasController.getAllAreaApi);
 
 // firm routes
 router.get('/dashboard/firms',firmsController.getAllFirm );

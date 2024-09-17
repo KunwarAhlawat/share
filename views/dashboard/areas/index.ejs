@@ -31,19 +31,13 @@
           </div>
 
        
-          <!-- Hidden element to pass JSON data to the JavaScript file -->
-          <script type="application/json" id="data"> <%- JSON.stringify({ data: data, label: "areas" }) %> </script>
-        
-          
-          
-          
         
             <table class="table datatable-nested ">
               <thead>
                 <tr>
                   <th>Area</th>
                   <th>District</th>
-				  <th>Zone</th>
+				           <th>Zone</th>
                   <th>State</th>
                   <th>Action</th>
                 </tr>
@@ -306,56 +300,116 @@
   </div>
 </div>
 
-
 <script>
+  $(document).ready(function () {
+    // Initialize DataTable
+    $('.datatable-nested').DataTable({
+      "ajax": {
+        "url": "/api/dashboard/areas",
+        "dataSrc": "data"
+      },
+      "columns": [
+        { data: "areaName" },
+        { data: "districtName" },
+        { data: "zoneName" },
+        { data: "stateName" },
+        {
+          data: null,
+          className: "text-center",
+          render: function (data, type, row) {
+            return `
+              <button type="button" class="btn btn-primary btn-sm" 
+                      onclick="setEditAreaData('${row.areaId}')">
+                  <i class="ph ph-pencil"></i>
+              </button>
+              <button type="button" class="btn btn-danger btn-sm ms-2" 
+                      onclick="setDeleteAreaData('${row.areaId}')">
+                  <i class="ph ph-trash"></i>
+              </button>
+            `;
+          }
+        }
+      ],
+      "autoWidth": false,
+      "dom": '<"datatable-header"flB><"datatable-scroll"t><"datatable-footer"ip>',
+      "language": {
+        search: '<span class="me-3">Filter:</span> <div class="form-control-feedback form-control-feedback-end flex-fill">_INPUT_<div class="form-control-feedback-icon"><i class="ph-magnifying-glass opacity-50"></i></div></div>',
+        searchPlaceholder: 'Type to filter...',
+        lengthMenu: '<span class="me-3">Show:</span> _MENU_',
+        paginate: {
+          'first': 'First',
+          'last': 'Last',
+          'next': document.dir === "rtl" ? '&larr;' : '&rarr;',
+          'previous': document.dir === "rtl" ? '&rarr;' : '&larr;'
+        }
+      },
+      "responsive": true,
+      "scrollX": true,
+      "processing": true,
+      "paging": true,
+      "pageLength": 10,
+      "lengthMenu": [5, 10, 25, 50, 100],
+      "ordering": true,
+      "order": [[0, 'asc']],
+      "buttons": [
+        {
+          extend: 'copyHtml5',
+          className: 'btn btn-light',
+          exportOptions: { columns: [0, ':visible'] }
+        },
+        {
+          extend: 'excelHtml5',
+          className: 'btn btn-light',
+          exportOptions: { columns: ':visible' }
+        },
+        {
+          extend: 'pdfHtml5',
+          className: 'btn btn-light',
+          exportOptions: { columns: [0, 1, 2, 5] }
+        },
+        {
+          extend: 'print',
+          className: 'btn btn-light',
+          exportOptions: { columns: ':visible' }
+        },
+        {
+          extend: 'colvis',
+          text: '<i class="ph-list"></i>',
+          className: 'btn btn-primary btn-icon dropdown-toggle'
+        }
+      ]
+    });
+  });
 
- let deletedAreaID = null;
+  let deletedAreaID = null;
 
   function setEditAreaData(areaId) {
+    console.log("Editing Area ID:", areaId);
 
-    // debug
-    console.log("areaID-setEditAreaData-f", typeof areaId)
     try {
-      // Retrieve and parse data
-      const rawData = $("#data").text().trim();
-      let parsedData = JSON.parse(rawData);
-      const { data } = parsedData;
+      // Get areas data from server-side (EJS rendering)
+      const rowData = <%- JSON.stringify(areas) %>; // Properly inject as JSON
 
       // Find the area by areaId
-      const area = data.find(item => item.areaId === Number(areaId));
+      const area = rowData.find(item => item.areaId === Number(areaId));
 
       if (!area) {
-        console.error(`Employee with ID ${areaId} not found`);
+        console.error(`Area with ID ${areaId} not found`);
         return;
       }
-
-      console.log("Show data with ID:", areaId);
-      console.log("Employee data in script:", area);
 
       // Create modal and form references
       const modal = new bootstrap.Modal(document.getElementById('edit-area-model'));
       const form = document.querySelector('#edit-area-model form');
 
       // Set form action URL
-      const actionUrl = `/dashboard/area/update/edit/${areaId}`;
-      form.action = actionUrl;
-
+      form.action = `/dashboard/area/update/edit/${areaId}`;
 
       // Populate form fields
-      form.querySelector('#area_name').value = area.area || '';
-      form.querySelector('#district').value = area.district || '';
-      form.querySelector('#zone').value = area.zone || '';
-      form.querySelector('#state').value = area.state || '';
-   
-      
-      // Handle photo preview (if applicable)
-      // Uncomment if you have a way to show the existing photo
-      // const photoPreview = document.querySelector('#photo-preview');
-      // if (employee.photo) {
-      //     photoPreview.src = employee.photo; // Set this to the URL of the photo
-      // } else {
-      //     photoPreview.src = ''; // Hide or clear the preview
-      // }
+      form.querySelector('#area_name').value = area.areaName || '';
+      form.querySelector('#district').value = area.districtName || '';
+      form.querySelector('#zone').value = area.zoneName || '';
+      form.querySelector('#state').value = area.stateName || '';
 
       // Show the modal
       modal.show();
@@ -365,72 +419,55 @@
     }
   }
 
-  // Function to handle delete data
   function setDeleteAreaData(areaId) {
-    deletedAreaID=Number(areaId);
-    try {
-      // Retrieve and parse data
-      const rawData = $("#data").text().trim();
-      let parsedData = JSON.parse(rawData);
-      const { data } = parsedData;
+    deletedAreaID = Number(areaId);
+    console.log("Preparing to delete Area ID:", deletedAreaID);
 
-      // Find the employee by areaId
-      const area = data.find(item => item.areaId === Number(areaId));
+    try {
+      // Get areas data from server-side (EJS rendering)
+      const rowData = <%- JSON.stringify(areas) %>; // Properly inject as JSON
+
+      // Find the area by areaId
+      const area = rowData.find(item => item.areaId === deletedAreaID);
 
       if (!area) {
-        console.error(`Employee with ID ${areaId} not found`);
+        console.error(`Area with ID ${areaId} not found`);
         return;
       }
 
-      console.log("Show data with ID:", area);
-      console.log("Employee data in script:", area);
-
-      // Create modal and form references
+      // Show delete confirmation modal
       const modal = new bootstrap.Modal(document.getElementById('confirm'));
-      // const form = document.querySelector('#edit-employee-model form');
-
-      // // Set form action URL
-      // const actionUrl = `/dashboard/employees/edit/${empId}`;
-      // form.action = actionUrl;
-
-
-
-      // Show the modal
       modal.show();
 
     } catch (error) {
       console.error("Error handling delete data:", error);
     }
-  };
-  
-  async function confirmDelete() {
-// Check if the deletedAreaID is valid
-if (deletedAreaID !== null && deletedAreaID !== undefined) {
-  try {
-    const response = await fetch(`/dashboard/area/delete/${deletedAreaID}`, {
-      method: 'DELETE',
-    });
-
-    // Close the Bootstrap modal before alerting or refreshing the page
-    const modalElement = document.getElementById('confirm');
-    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-    modalInstance.hide();
-
-    // const data = await response.json();
-
-    if (response.ok) {
-      alert('Record deleted successfully!');
-      location.reload(); // Optionally, refresh the page to reflect changes
-    } else {
-      alert('Error deleting record.');
-    }
-  } catch (error) {
-    console.error('Error:', error);
   }
-} else {
-  console.error('No area ID provided for deletion.');
-}
-}
 
+  async function confirmDelete() {
+    if (deletedAreaID !== null && deletedAreaID !== undefined) {
+      try {
+        const response = await fetch(`/dashboard/area/delete/${deletedAreaID}`, { method: 'DELETE' });
+
+        // Close the modal before handling the response
+        const modalElement = document.getElementById('confirm');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        modalInstance.hide();
+
+        if (response.ok) {
+          alert('Area deleted successfully!');
+          location.reload(); // Optionally, refresh the page to reflect changes
+        } else {
+          alert('Error deleting area.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    } else {
+      console.error('No Area ID provided for deletion.');
+    }
+  }
 </script>
+
+
 <%- include('../../partials/footer') %>

@@ -66,7 +66,7 @@
   <!-- /page content -->
 
 
-  <!-- Edit Customer Modal -->
+  <!-- add Customer Modal -->
   <div id="add-customer-model" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog modal-full">
       <div class="modal-content">
@@ -179,10 +179,10 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Select Grade</label>
-                  <select class="form-control multiselect" multiple="multiple">
-                    <option value="A">Grade A</option>
-                    <option value="B">Grade B</option>
-                    <option value="C">Grade C</option>
+                  <select class="form-control multiselect" multiple="multiple" name="customer_grade" data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                    <% grades.forEach(function(item) { %>
+                      <option value="<%= item.gradeId %>"><%= item.gradeType %></option>
+                    <% }) %>
                   </select>
                   <small class="form-text text-muted">Select the applicable grade</small>
                 </div>
@@ -192,11 +192,10 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Select Area</label>
-                  <select class="form-control multiselect" multiple="multiple">
-                    <option value="cheese">Cheese</option>
-                    <option value="tomatoes">Tomatoes</option>
-                    <option value="mozarella">Mozzarella</option>
-                    <option value="mushrooms">Mushrooms</option>
+                  <select class="form-control multiselect" multiple="multiple" name="customer_area" data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                    <% areas.forEach(function(item) { %>
+                      <option value="<%= item.areaId %>"><%= item.areaName %></option>
+                    <% }) %>
                   </select>
                   <small class="form-text text-muted">Choose one or more areas</small>
                 </div>
@@ -323,13 +322,14 @@
                 <div class="col-md-12">
                   <div class="mb-3">
                     <label class="form-label">Select Category</label>
-                    <select class="form-control multiselect" name="category_ids" multiple="multiple">
-                      <% data.forEach(function(item) { %>
+                    <select class="form-control multiselect" name="category_ids" multiple="multiple" data-include-select-all-option="true" data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                      <% categories.forEach(function(item) { %>
                         <option value="<%= item.categoryId %>"><%= item.categoryName %></option>
                       <% }) %>
                     </select>
                     <small class="form-text text-muted">Choose one or more categories</small>
                   </div>
+              
                 </div>
               </div>
             </div>
@@ -341,11 +341,11 @@
                 <div class="col-md-12">
                   <div class="mb-3">
                     <label class="form-label">Select Firm</label>
-                    <select class="form-control multiselect" multiple="multiple">
-                      <option value="cheese">Cheese</option>
-                      <option value="tomatoes">Tomatoes</option>
-                      <option value="mozarella">Mozzarella</option>
-                      <option value="mushrooms">Mushrooms</option>
+                    <select class="form-control multiselect" multiple="multiple" name="customer_firms" data-include-select-all-option="true" data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                      <% firms.forEach(function(item) { %>
+                        <option value="<%= item.firmId %>"><%= item.firmName %></option>
+                      <% }) %>
+      
                     </select>
                     <small class="form-text text-muted">Choose one or more categories</small>
                   </div>
@@ -364,9 +364,8 @@
     </div>
   </div>
 
+  <!-- scripts related to customer table -->
   <script>
-
-    // customer table code 
     $(document).ready(function () {
       // Initialize DataTable
       $('.datatable-nested').DataTable({
@@ -382,62 +381,56 @@
           {
             data: "master_categories",
             render: function (data) {
-              if (Array.isArray(data)) {
-                return data.map(item => item.categoryName).join(', ');
-              }
-              return '';
+              return data && Array.isArray(data) ? data.map(item => item.categoryName).join(', ') : '';
             }
           },
           {
             data: "master_area",
             render: function (data) {
-              return data ? data.areaName : 'N/A';  // Render area name or an empty string
+              return data ? data.areaName : 'N/A';
             }
           },
           { data: "customerStatus" },
           {
             data: "master_grade",
             render: function (data) {
-              return data ? data.gradeType : 'N/A';  // Render grade type or an empty string
+              return data ? data.gradeType : 'N/A';
             }
           },
           { data: "pincode" },
           {
             data: "master_firms",
             render: function (data) {
-              if (Array.isArray(data)) {
-                return data.map(item => item.firmName).join(', ');
-              }
-              return '';
+              return data && Array.isArray(data) ? data.map(item => item.firmName).join(', ') : '';
             }
           },
           {
-            data: null, // Buttons for edit and delete
+            data: null,
             className: "text-center",
             render: function (data, type, row) {
               return `
-                          <button type="button" class="btn btn-primary btn-sm" 
-                                  onclick="setEditCustomerData('${row.customerId}')">
-                              <i class="ph ph-pencil"></i>
-                          </button>
-                          <button type="button" class="btn btn-danger btn-sm ms-2" 
-                                  onclick="deleteCustomerData('${row.customerId}')">
-                              <i class="ph ph-trash"></i>
-                          </button>
-                      `;
+                <button type="button" class="btn btn-primary btn-sm" 
+                        onclick="editCustomer('${row.customerId}')">
+                    <i class="ph ph-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-danger btn-sm ms-2" 
+                        onclick="deleteCustomer('${row.customerId}')">
+                    <i class="ph ph-trash"></i>
+                </button>
+              `;
             }
           }
         ],
         // Configure table behavior
-        "autoWidth": false, // Disable automatic column width adjustment for better control
+        "autoWidth": false,
         "columnDefs": [
           {
             orderable: true,
             width: 100,
-            targets: [5] // Example: Customize width and orderability of a specific column (e.g., grade)
+            targets: [5] // Example: Customize width and orderability of a specific column
           }
         ],
-        "dom": '<"datatable-header"flB><"datatable-scroll"t><"datatable-footer"ip>', // Add buttons to the top
+        "dom": '<"datatable-header"flB><"datatable-scroll"t><"datatable-footer"ip>',
         "language": {
           search: '<span class="me-3">Filter:</span> <div class="form-control-feedback form-control-feedback-end flex-fill">_INPUT_<div class="form-control-feedback-icon"><i class="ph-magnifying-glass opacity-50"></i></div></div>',
           searchPlaceholder: 'Type to filter...',
@@ -445,28 +438,25 @@
           paginate: {
             'first': 'First',
             'last': 'Last',
-            'next': document.dir == "rtl" ? '&larr;' : '&rarr;',
-            'previous': document.dir == "rtl" ? '&rarr;' : '&larr;'
+            'next': document.dir === "rtl" ? '&larr;' : '&rarr;',
+            'previous': document.dir === "rtl" ? '&rarr;' : '&larr;'
           }
         },
-        // Enable all basic features
-        "responsive": true,         // Enable responsive layout
-        "scrollX": true,            // Enable horizontal scrolling
-        "processing": true,         // Show a processing indicator
-        "serverSide": false,        // Enable server-side processing (disable if the dataset is large)
-        "searching": true,          // Enable global search functionality
-        "paging": true,             // Enable pagination
-        "pageLength": 10,           // Number of rows per page
-        "lengthMenu": [5, 10, 25, 50, 100], // Dropdown to select number of rows per page
-        "ordering": true,           // Enable sorting on all columns
-        "order": [[0, 'asc']],      // Default sorting on the first column (customerCode)
-        "info": true,               // Show table information (e.g., "Showing 1 to 10 of 50 entries")
+        "responsive": true,
+        "scrollX": true,
+        "processing": true,
+        "serverSide": false,
+        "searching": true,
+        "paging": true,
+        "pageLength": 10,
+        "lengthMenu": [5, 10, 25, 50, 100],
+        "ordering": true,
+        "order": [[0, 'asc']],
+        "info": true,
         "search": {
-          "caseInsensitive": true  // Case-insensitive search
+          "caseInsensitive": true
         },
-
-        // Add export and column visibility buttons
-        buttons: [
+        "buttons": [
           {
             extend: 'copyHtml5',
             className: 'btn btn-light',
@@ -485,7 +475,7 @@
             extend: 'pdfHtml5',
             className: 'btn btn-light',
             exportOptions: {
-              columns: [0, 1, 2, 5] // Customize which columns to include in PDF export
+              columns: [0, 1, 2, 5]
             }
           },
           {
@@ -497,47 +487,40 @@
           },
           {
             extend: 'colvis',
-            text: '<i class="ph-list"></i>', // Custom icon for column visibility
+            text: '<i class="ph-list"></i>',
             className: 'btn btn-primary btn-icon dropdown-toggle'
           }
         ]
       });
     });
-
-    // Placeholder function for editing customer data
-    function setEditCustomerData(customerId) {
+  
+    // Edit customer function
+    function editCustomer(customerId) {
       console.log("Edit customer with ID:", customerId);
       // Add your logic for editing the customer data
     }
-
-    // Placeholder function for deleting customer data
-    function deleteCustomerData(customerId) {
+  
+    // Delete customer function
+    function deleteCustomer(customerId) {
       console.log("Delete customer with ID:", customerId);
       // Add your logic for deleting the customer data
     }
-
-
-    // customer code generate function
+  
+    // Generate customer code function
     function customerCodeGenerator() {
-      // Get the customer_code input element
       const customerCodeElement = document.getElementById("customer_code");
-
-      // Always generate a new code regardless of what's currently in the input field
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       let identifier = '';
-
-      // Generate a 6-character identifier (you can adjust the length if needed)
+  
       for (let i = 0; i < 6; i++) {
         identifier += chars[Math.floor(Math.random() * chars.length)];
       }
-
-      // Set the generated code in the input field, overwriting any existing value
+  
       customerCodeElement.value = identifier;
-
-      console.log("Generated Code: ", identifier); // Debugging
+      console.log("Generated Code:", identifier); // Debugging
     }
-
   </script>
+  
 
 
   <%- include('../../partials/footer') %>

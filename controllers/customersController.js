@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require("uuid"); 
+const { v4: uuidv4 } = require("uuid");
 const validator = require('validator');
 const {
   sequelize,
@@ -17,31 +17,34 @@ const {
   MasterTeamsModel,
 } = require("../Models/index");
 
+// Get all customers with related models
 exports.getAllCustomers = async (req, res) => {
   try {
-    // Fetch all customers with related models
     const categories = await MasterCategoriesModel.findAll();
-  
+    const contacts = await CustomerContactsModel.findAll();
+    const firms = await MasterFirmModel.findAll();
+    const grades = await MasterGradeModel.findAll();
+    const areas = await MasterAreaModel.findAll();
 
-    const result = JSON.stringify(categories);
-    const resultParsed = JSON.parse(result)
-    //debug
-    console.log("ResultParsed-getAllCustomersApi", resultParsed);
-    // Send JSON response
+    console.log("Fetched all data for customers successfully.");
+
     res.render("dashboard/customers/index", {
       title: "All Customer",
-      data: resultParsed,
-  });
+      categories,
+      contacts,
+      firms,
+      grades,
+      areas,
+    });
   } catch (error) {
-    console.error("Error in getAllCustomersApi:", error);
-    res.status(500).send({ message: error.message });
+    console.error("Error fetching customers data:", error);
+    res.status(500).send({ message: "Failed to retrieve customer data. Please try again later." });
   }
 };
 
-// Get all customers with related firms, categories, and products for DataTable
+// Get all customers for DataTable with related models
 exports.getAllCustomersApi = async (req, res) => {
   try {
-    // Fetch all customers with related models
     const customers = await MasterCustomerModel.findAll({
       include: [
         { model: MasterFirmModel },
@@ -53,23 +56,18 @@ exports.getAllCustomersApi = async (req, res) => {
       ],
     });
 
-    const result = JSON.stringify(customers);
-    const resultParsed = JSON.parse(result)
-    //debug
-    // console.log("ResultParsed-getAllCustomersApi", resultParsed);
-    // Send JSON response
-    res.json({ data: resultParsed });
+    console.log("Fetched all customer data for API.");
+    res.json({ data: customers });
   } catch (error) {
     console.error("Error in getAllCustomersApi:", error);
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ message: "Failed to retrieve customers for API. Please try again later." });
   }
 };
-
 
 // Create a new customer
 exports.apiCreateCustomer = async (req, res) => {
   try {
-    console.log("req.body-apiCreateCustomer", req.body);
+    console.log("Received request body for new customer:", req.body);
 
     const {
       customer_code,
@@ -87,9 +85,9 @@ exports.apiCreateCustomer = async (req, res) => {
       category_ids,
     } = req.body;
 
-    // Handle optional fields
+    // Sanitize and validate inputs
     const sanitizedData = {
-      customerId: uuidv4(), // Generate a unique ID for the customer
+      customerId: uuidv4(),
       customerCode: validator.escape(customer_code),
       customerName: validator.escape(customer_name),
       customerStatus: validator.escape(customer_status),
@@ -104,48 +102,61 @@ exports.apiCreateCustomer = async (req, res) => {
       creditDays: validator.isEmpty(customer_credit_days) ? null : validator.escape(customer_credit_days),
     };
 
+    // Create customer in the database
     const customer = await MasterCustomerModel.create(sanitizedData);
-    console.log(Object.keys(customer.__proto__)); // Check available methods
+    console.log("Customer created successfully with ID:", customer.customerId);
 
-    // Associate categories only if categories are provided
+    // Associate categories if provided
     if (category_ids && category_ids.length) {
       await customer.addMaster_categories(category_ids);
     }
 
-    // Respond with success message
-    res.status(201).json({ message: 'Customer was created successfully.' });
-
+    res.status(201).json({ message: 'Customer created successfully.' });
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    res.status(500).send({ message: error.message });
+    console.error("Error creating new customer:", error);
+    res.status(500).send({ message: "Failed to create customer. Please try again later." });
   }
 };
 
+// Update an existing customer
+exports.updateCustomer = async (req, res) => {
+  try {
+    const { name, email, firmIds, categoryIds, productIds } = req.body;
+    const customer = await MasterCustomerModel.findByPk(req.params.id);
 
-// // Update an existing customer
-// exports.updateCustomer = async (req, res) => {
-//   try {
-//     const { name, email, firmIds, categoryIds, productIds } = req.body;
-//     const customer = await db.Customer.findByPk(req.params.id);
+    if (!customer) {
+      return res.status(404).send({ message: "Customer not found." });
+    }
 
-//     await customer.update({ name, email });
+    // Update customer details
+    await customer.update({ name, email });
+    console.log("Customer updated successfully:", customer.id);
 
-//     if (firmIds) await customer.setFirms(firmIds);
-//     if (categoryIds) await customer.setCategories(categoryIds);
-//     if (productIds) await customer.setProducts(productIds);
+    // Update relationships if provided
+    if (firmIds) await customer.setFirms(firmIds);
+    if (categoryIds) await customer.setCategories(categoryIds);
+    if (productIds) await customer.setProducts(productIds);
 
-//     res.redirect('/customers');
-//   } catch (error) {
-//     res.status(500).send({ message: error.message });
-//   }
-// };
+    res.redirect('/customers');
+  } catch (error) {
+    console.error("Error updating customer:", error);
+    res.status(500).send({ message: "Failed to update customer. Please try again later." });
+  }
+};
 
 // // Delete a customer
 // exports.deleteCustomer = async (req, res) => {
 //   try {
-//     await db.Customer.destroy({ where: { id: req.params.id } });
+//     const customer = await MasterCustomerModel.findByPk(req.params.id);
+//     if (!customer) {
+//       return res.status(404).send({ message: "Customer not found." });
+//     }
+
+//     await customer.destroy();
+//     console.log("Customer deleted successfully:", req.params.id);
 //     res.redirect('/customers');
 //   } catch (error) {
-//     res.status(500).send({ message: error.message });
+//     console.error("Error deleting customer:", error);
+//     res.status(500).send({ message: "Failed to delete customer. Please try again later." });
 //   }
 // };
