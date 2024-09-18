@@ -26,23 +26,23 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // app.use(methodOverride('_method'));
 
 // Session Configuration
-// app.use(session({
-//     secret: 'kunwar',
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { secure: false } // Set secure: true in production with HTTPS
-// }));
+app.use(session({
+    secret: 'kunwar',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set secure: true in production with HTTPS
+}));
 
 // Flash Messages
-// app.use(flash());
+app.use(flash());
 
-// // Middleware to expose flash messages and session data to all templates
-// app.use((req, res, next) => {
-//     res.locals.success_msg = req.flash("success_msg");
-//     res.locals.error_msg = req.flash('error_msg');
-//     res.locals.user = req.session.user;
-//     next();
-// });
+// Middleware to expose flash messages and session data to all templates
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash("success_msg");
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.user = req.session.user;
+    next();
+});
 
 // Routes
 const pageRoutes = require('./routes/pageRoutes');
@@ -51,17 +51,17 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 
 app.use('/', pageRoutes);
 // app.use('/', apiDashboardRoutes);
-// app.use('/', dashboardRoutes);
+app.use('/', dashboardRoutes);
 
 // Sync Sequelize models with the database
 // sequelize.sync({ alter: true })
-// sequelize.sync()
-//     .then(() => {
-//         console.log('Database & tables created!');
-//     })
-//     .catch(err => {
-//         console.error('Error syncing database:', err);
-//     });
+sequelize.sync()
+    .then(() => {
+        console.log('Database & tables created!');
+    })
+    .catch(err => {
+        console.error('Error syncing database:', err);
+    });
 
 // Error handling: 404 Page Not Found
 app.use((req, res) => {

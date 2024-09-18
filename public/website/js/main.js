@@ -92,8 +92,8 @@
 
    // Team carousel
 $(".team-carousel").owlCarousel({
-    autoplay: false,
-    smartSpeed: 1000,
+    autoplay: true,
+    smartSpeed: 500,
     dots: true,
     loop: true,
     margin: 15, // Adjust as needed
