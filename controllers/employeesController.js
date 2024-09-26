@@ -1,95 +1,82 @@
 const { MasterEmployeeModel } = require('../Models/index'); 
 const { v4: uuidv4 } = require("uuid"); 
-const validator = require('validator');
+const {handleSequelizeErrors } = require("../services/helperService"); 
+ 
 
 // Create a new employee
 exports.createEmployee = async (req, res) => {
-   
     const {
         employee_name,
-        designation = '',
-        doj = '',
-        dol = '',
-        gender = '',
-        dob = '',
-        blood_group = '',
-        address = '',
-        primary_mobile = '',
         email,
-        father_name = '',
-        mother_name = '',
-        father_mobile = '',
-        mother_mobile = '',
-        spouse_name = '',
-        spouse_mobile = '',
-        bank_name = '',
-        bank_account = '',
-        ifsc_code = '',
-        aadhar_number = '',
-        pan_number = '',
-        reference = '',
-        photo = '',
-        role = '',
-        comments = ''
+        confirm_password,
+        designation,
+        doj,
+        dol,
+        gender,
+        dob,
+        blood_group,
+        address,
+        primary_mobile,
+        father_name,
+        mother_name,
+        father_mobile,
+        mother_mobile,
+        spouse_name,
+        spouse_mobile,
+        bank_name,
+        bank_account,
+        ifsc_code,
+        aadhar_number,
+        pan_number,
+        reference,
+        photo,
+        role
     } = req.body;
 
-     // Validate required fields
-     if (!validator.isAlpha(employee_name.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-        return res.status(400).send('Invalid employee name');
-    }
-
-    if (!validator.isEmail(email)) {
-        return res.status(400).send('Invalid email address');
-    }
-
-    // Handle optional fields
-    const sanitizedData = {
-        empId: uuidv4(), // Generate a unique ID for the employee
-        employeeName: validator.escape(employee_name),
-        designation: validator.isEmpty(designation) ? null : validator.escape(designation),
-        dateOfJoining: validator.isEmpty(doj) ? null : validator.escape(doj),
-        dateOfLeaving: validator.isEmpty(dol) ? null : validator.escape(dol),
-        gender: validator.isEmpty(gender) ? null : validator.escape(gender),
-        dateOfBirth: validator.isEmpty(dob) ? null : validator.escape(dob),
-        bloodGroup: validator.isEmpty(blood_group) ? null : validator.escape(blood_group),
-        address: validator.isEmpty(address) ? null : validator.escape(address),
-        primaryMobileNumber: validator.isEmpty(primary_mobile) ? null : validator.escape(primary_mobile),
-        emailId: validator.escape(email),
-        fatherName: validator.isEmpty(father_name) ? null : validator.escape(father_name),
-        motherName: validator.isEmpty(mother_name) ? null : validator.escape(mother_name),
-        fatherMobileNumber: validator.isEmpty(father_mobile) ? null : validator.escape(father_mobile),
-        motherMobileNumber: validator.isEmpty(mother_mobile) ? null : validator.escape(mother_mobile),
-        spouseName: validator.isEmpty(spouse_name) ? null : validator.escape(spouse_name),
-        spouseMobileNumber: validator.isEmpty(spouse_mobile) ? null : validator.escape(spouse_mobile),
-        bankName: validator.isEmpty(bank_name) ? null : validator.escape(bank_name),
-        bankAccountNumber: validator.isEmpty(bank_account) ? null : validator.escape(bank_account),
-        ifscCode: validator.isEmpty(ifsc_code) ? null : validator.escape(ifsc_code),
-        aadharNumber: validator.isEmpty(aadhar_number) ? null : validator.escape(aadhar_number),
-        panNumber: validator.isEmpty(pan_number) ? null : validator.escape(pan_number),
-        reference: validator.isEmpty(reference) ? null : validator.escape(reference),
-        photo: validator.isEmpty(photo) ? null : validator.escape(photo),
-        role: validator.isEmpty(role) ? null : validator.escape(role),
-        comments: validator.isEmpty(comments) ? null : validator.escape(comments)
-    };
-
     try {
-        // check if employee email already exist
-        const result = await MasterEmployeeModel.findOne({ where: { emailId: email } });
-          
-        // debug
-        console.log("Result-Create Employee",result)
-                if (result) {
-                    res.status(409).json({ message: 'Employee already exists' });
-                    
-                } else {
-                    const employee = await MasterEmployeeModel.create(sanitizedData);
-                    res.status(201).json({ message: 'Employee was created.' });
-                }
-         
-        // const employee = await MasterEmployee.create(sanitizedData);
-        // res.status(201).json(employee);
+        const sanitizedData = {
+            empId: uuidv4().replace(/-/g, ''),
+            employeeName: employee_name,
+            emailId: email,
+            password: confirm_password, // Consider hashing this before saving
+            designation,
+            dateOfJoining: doj,
+            dateOfLeaving: dol || null,
+            gender,
+            dateOfBirth: dob || null,
+            bloodGroup: blood_group || null,
+            address: address || null,
+            primaryMobileNumber: primary_mobile,
+            fatherName: father_name || null,
+            motherName: mother_name || null,
+            fatherMobileNumber: father_mobile || null,
+            motherMobileNumber: mother_mobile || null,
+            spouseName: spouse_name || null,
+            spouseMobileNumber: spouse_mobile || null,
+            bankName: bank_name || null,
+            bankAccountNumber: bank_account || null,
+            ifscCode: ifsc_code || null,
+            aadharNumber: aadhar_number || null,
+            panNumber: pan_number || null,
+            reference: reference || null,
+            photo: photo || null,
+            role
+        };
+
+        // Create the employee in the database
+        const result = await MasterEmployeeModel.create(sanitizedData);
+
+        console.log("Employee created successfully:", result);
+        return res.status(201).json({
+            success: true,
+            message: 'Employee was created.',
+            employee: result // Optionally return the created employee
+        });
+        
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error creating employee:", error);
+        const { status, message, details } = handleSequelizeErrors(error);
+        return res.status(status || 500).json({ success: false, error: message, details });
     }
 };
 
@@ -107,78 +94,129 @@ exports.createEmployee = async (req, res) => {
 //     }
 // };
 
+// Delete an employee by ID
+exports.deleteEmployeeApi = async (req, res) => {
+    try {
+        // Extract employee ID from request parameters
+        const { id } = req.params;
+
+        // Check if the employee exists before attempting to delete
+        const employee = await MasterEmployeeModel.findByPk(id);
+        if (!employee) {
+            return res.status(404).send({
+                success: false,
+                message: "Employee not found.",
+            });
+        }
+
+        // Delete the employee
+        await employee.destroy();
+
+        // Log successful employee deletion
+        console.log("Deleted employee successfully:", employee);
+
+        return res.status(200).send({
+            success: true,
+            message: "Employee deleted successfully.",
+        });
+    } catch (error) {
+        console.error("Error deleting employee:", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to delete employee. Please try again later.",
+            error: error.message,
+        });
+    }
+};
+
 // Update an employee by ID
 exports.updateEmployee = async (req, res) => {
+    // Debugging log for incoming request body
+    console.log("Req.body-updateEmployee", req.body);
+
+    // Destructure properties from request body
     const {
-        employee_name,
-        designation = '',
-        doj = '',
-        dol = '',
-        gender = '',
-        dob = '',
-        blood_group = '',
-        address = '',
-        primary_mobile = '',
-        email,
-        father_name = '',
-        mother_name = '',
-        father_mobile = '',
-        mother_mobile = '',
-        spouse_name = '',
-        spouse_mobile = '',
-        bank_name = '',
-        bank_account = '',
-        ifsc_code = '',
-        aadhar_number = '',
-        pan_number = '',
-        reference = '',
-        photo = '',
-        role = '',
-        comments = ''
+        edit_employee_name,
+        edit_email,
+        edit_confirm_password,
+        edit_designation = '',
+        edit_doj = '',
+        edit_dol = '',
+        edit_gender = '',
+        edit_dob = '',
+        edit_blood_group = '',
+        edit_address = '',
+        edit_primary_mobile = '',
+        edit_father_name = '',
+        edit_mother_name = '',
+        edit_father_mobile = '',
+        edit_mother_mobile = '',
+        edit_spouse_name = '',
+        edit_spouse_mobile = '',
+        edit_bank_name = '',
+        edit_bank_account = '',
+        edit_ifsc_code = '',
+        edit_aadhar_number = '',
+        edit_pan_number = '',
+        edit_reference = '',
+        edit_photo = '',
+        edit_role = '',
+        
     } = req.body;
 
-     // Validate required fields
-     if (!validator.isAlpha(employee_name.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
+    // Validate required fields
+    // Uncomment this if employee_name is required
+    if (!validator.isAlpha(edit_employee_name.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
         return res.status(400).send('Invalid employee name');
     }
 
-    if (!validator.isEmail(email)) {
+    if (!validator.isEmail(edit_email)) {
         return res.status(400).send('Invalid email address');
     }
 
-    // Handle optional fields
+    // Validate password
+    if (!validator.isStrongPassword(edit_confirm_password, { minLength: 8, minUppercase: 1, minNumbers: 1, minSymbols: 1 })) {
+        return res.status(400).send('Password must be at least 8 characters long, contain at least one uppercase letter, one number, and one special character');
+    }
+
+    // Handle optional fields, ensuring safe escape of values
     const sanitizedData = {
-        empId: req.params.id, 
-        employeeName: validator.escape(employee_name),
-        designation: validator.isEmpty(designation) ? null : validator.escape(designation),
-        dateOfJoining: validator.isEmpty(doj) ? null : validator.escape(doj),
-        dateOfLeaving: validator.isEmpty(dol) ? null : validator.escape(dol),
-        gender: validator.isEmpty(gender) ? null : validator.escape(gender),
-        dateOfBirth: validator.isEmpty(dob) ? null : validator.escape(dob),
-        bloodGroup: validator.isEmpty(blood_group) ? null : validator.escape(blood_group),
-        address: validator.isEmpty(address) ? null : validator.escape(address),
-        primaryMobileNumber: validator.isEmpty(primary_mobile) ? null : validator.escape(primary_mobile),
-        emailId: validator.escape(email),
-        fatherName: validator.isEmpty(father_name) ? null : validator.escape(father_name),
-        motherName: validator.isEmpty(mother_name) ? null : validator.escape(mother_name),
-        fatherMobileNumber: validator.isEmpty(father_mobile) ? null : validator.escape(father_mobile),
-        motherMobileNumber: validator.isEmpty(mother_mobile) ? null : validator.escape(mother_mobile),
-        spouseName: validator.isEmpty(spouse_name) ? null : validator.escape(spouse_name),
-        spouseMobileNumber: validator.isEmpty(spouse_mobile) ? null : validator.escape(spouse_mobile),
-        bankName: validator.isEmpty(bank_name) ? null : validator.escape(bank_name),
-        bankAccountNumber: validator.isEmpty(bank_account) ? null : validator.escape(bank_account),
-        ifscCode: validator.isEmpty(ifsc_code) ? null : validator.escape(ifsc_code),
-        aadharNumber: validator.isEmpty(aadhar_number) ? null : validator.escape(aadhar_number),
-        panNumber: validator.isEmpty(pan_number) ? null : validator.escape(pan_number),
-        reference: validator.isEmpty(reference) ? null : validator.escape(reference),
-        photo: validator.isEmpty(photo) ? null : validator.escape(photo),
-        role: validator.isEmpty(role) ? null : validator.escape(role),
-        comments: validator.isEmpty(comments) ? null : validator.escape(comments)
+        // You should not create a new empId here; use the existing one instead
+        // empId: uuidv4(), // Remove this line
+        employeeName: validator.escape(edit_employee_name),
+        emailId: validator.escape(edit_email),
+        password: validator.escape(edit_confirm_password),
+        role: validator.isEmpty(edit_role) ? null : validator.escape(edit_role),
+        designation: validator.isEmpty(edit_designation) ? null : validator.escape(edit_designation),
+        dateOfJoining: validator.isEmpty(edit_doj) ? null : validator.escape(edit_doj),
+        dateOfLeaving: validator.isEmpty(edit_dol) ? null : validator.escape(edit_dol),
+        gender: validator.isEmpty(edit_gender) ? null : validator.escape(edit_gender),
+        dateOfBirth: validator.isEmpty(edit_dob) ? null : validator.escape(edit_dob),
+        bloodGroup: validator.isEmpty(edit_blood_group) ? null : validator.escape(edit_blood_group),
+        address: validator.isEmpty(edit_address) ? null : validator.escape(edit_address),
+        primaryMobileNumber: validator.isEmpty(edit_primary_mobile) ? null : validator.escape(edit_primary_mobile),
+        fatherName: validator.isEmpty(edit_father_name) ? null : validator.escape(edit_father_name),
+        motherName: validator.isEmpty(edit_mother_name) ? null : validator.escape(edit_mother_name),
+        fatherMobileNumber: validator.isEmpty(edit_father_mobile) ? null : validator.escape(edit_father_mobile),
+        motherMobileNumber: validator.isEmpty(edit_mother_mobile) ? null : validator.escape(edit_mother_mobile),
+        spouseName: validator.isEmpty(edit_spouse_name) ? null : validator.escape(edit_spouse_name),
+        spouseMobileNumber: validator.isEmpty(edit_spouse_mobile) ? null : validator.escape(edit_spouse_mobile),
+        bankName: validator.isEmpty(edit_bank_name) ? null : validator.escape(edit_bank_name),
+        bankAccountNumber: validator.isEmpty(edit_bank_account) ? null : validator.escape(edit_bank_account),
+        ifscCode: validator.isEmpty(edit_ifsc_code) ? null : validator.escape(edit_ifsc_code),
+        aadharNumber: validator.isEmpty(edit_aadhar_number) ? null : validator.escape(edit_aadhar_number),
+        panNumber: validator.isEmpty(edit_pan_number) ? null : validator.escape(edit_pan_number),
+        reference: validator.isEmpty(edit_reference) ? null : validator.escape(edit_reference),
+        photo: validator.isEmpty(edit_photo) ? null : validator.escape(edit_photo),
     };
+
     try {
+        // Update the employee record in the database
         const [updated] = await MasterEmployeeModel.update(sanitizedData, {
-            where: { empId: req.params.id }
+            where: { empId: req.params.id } // Ensure you are using the correct ID from the route
         });
+
+        // Check if the update was successful
         if (updated) {
             const updatedEmployee = await MasterEmployeeModel.findByPk(req.params.id);
             res.status(200).json(updatedEmployee);
@@ -186,42 +224,65 @@ exports.updateEmployee = async (req, res) => {
             res.status(404).json({ message: 'Employee not found' });
         }
     } catch (error) {
+        console.error("Error updating employee:", error); // Log the error for debugging
         res.status(500).json({ error: error.message });
     }
 };
 
-// Delete an employee by ID
-exports.deleteEmployee = async (req, res) => {
-    try {
-        const deleted = await MasterEmployeeModel.destroy({
-            where: { empId: req.params.id }
-        });
-        if (deleted) {
-            res.status(204).send(); // No content
-        } else {
-            res.status(404).json({ message: 'Employee not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+
 
 // List all employees
-exports.getAllEmployees = async (req, res) => {
+exports.getEmployees = async (req, res) => {
     try {
         const employees = await MasterEmployeeModel.findAll();
-         
-        // convert to plain array of object
-        const resolvedData = employees.map((item) => item.dataValues);
-        
-        // debug
-        console.log("ResolvedData-getAllEmployees", resolvedData)
-        res.render("dashboard/employees/index", {
-            title: "All Employees",
-            data: resolvedData,
+
+        // Log successful data retrieval
+        console.log("Fetched all employee data successfully.");
+
+        return res.render("dashboard/employees/index", {
+            title: "Employees"
         });
-        // res.status(200).json(employees);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error fetching employee data:", error);
+        return res.status(500).send({
+            message: "Failed to retrieve employee data. Please try again later.",
+        });
     }
 };
+
+
+// List all employees (API)
+exports.getEmployeesApi = async (req, res) => {
+    // Debugging: Function has been called
+    console.log("Request received at getAllEmployeesApi");
+
+    try {
+        // Fetch all employees from the database
+        const employees = await MasterEmployeeModel.findAll();
+        
+        // Debugging: Log the number of employees fetched
+        console.log(`Fetched ${employees.length} employees successfully from the API.`);
+
+        // Send the response with the data
+        return res.status(200).json({ 
+            success: true, 
+            message: "Employees retrieved successfully", 
+            data: employees
+        });
+
+    } catch (error) {
+        // Error handling: Log the error details
+        console.error("Error occurred in getAllEmployeesApi:", error);
+
+        // Send error response
+        return res.status(500).json({ 
+            success: false, 
+            message: "Failed to retrieve employees. Please try again later.", 
+            error: error
+        });
+    }
+};
+
+
+
+

@@ -1,227 +1,122 @@
-const { MasterEmployeeModel } = require('../Models/index'); 
-const { v4: uuidv4 } = require("uuid"); 
-const validator = require('validator');
+const { MasterGradeModel } = require('../Models/index'); ; 
 
-// Create a new employee
-exports.createEmployee = async (req, res) => {
-   
-    const {
-        employee_name,
-        designation = '',
-        doj = '',
-        dol = '',
-        gender = '',
-        dob = '',
-        blood_group = '',
-        address = '',
-        primary_mobile = '',
-        email,
-        father_name = '',
-        mother_name = '',
-        father_mobile = '',
-        mother_mobile = '',
-        spouse_name = '',
-        spouse_mobile = '',
-        bank_name = '',
-        bank_account = '',
-        ifsc_code = '',
-        aadhar_number = '',
-        pan_number = '',
-        reference = '',
-        photo = '',
-        role = '',
-        comments = ''
-    } = req.body;
-
-     // Validate required fields
-     if (!validator.isAlpha(employee_name.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-        return res.status(400).send('Invalid employee name');
-    }
-
-    if (!validator.isEmail(email)) {
-        return res.status(400).send('Invalid email address');
-    }
-
-    // Handle optional fields
-    const sanitizedData = {
-        empId: uuidv4(), // Generate a unique ID for the employee
-        employeeName: validator.escape(employee_name),
-        designation: validator.isEmpty(designation) ? null : validator.escape(designation),
-        dateOfJoining: validator.isEmpty(doj) ? null : validator.escape(doj),
-        dateOfLeaving: validator.isEmpty(dol) ? null : validator.escape(dol),
-        gender: validator.isEmpty(gender) ? null : validator.escape(gender),
-        dateOfBirth: validator.isEmpty(dob) ? null : validator.escape(dob),
-        bloodGroup: validator.isEmpty(blood_group) ? null : validator.escape(blood_group),
-        address: validator.isEmpty(address) ? null : validator.escape(address),
-        primaryMobileNumber: validator.isEmpty(primary_mobile) ? null : validator.escape(primary_mobile),
-        emailId: validator.escape(email),
-        fatherName: validator.isEmpty(father_name) ? null : validator.escape(father_name),
-        motherName: validator.isEmpty(mother_name) ? null : validator.escape(mother_name),
-        fatherMobileNumber: validator.isEmpty(father_mobile) ? null : validator.escape(father_mobile),
-        motherMobileNumber: validator.isEmpty(mother_mobile) ? null : validator.escape(mother_mobile),
-        spouseName: validator.isEmpty(spouse_name) ? null : validator.escape(spouse_name),
-        spouseMobileNumber: validator.isEmpty(spouse_mobile) ? null : validator.escape(spouse_mobile),
-        bankName: validator.isEmpty(bank_name) ? null : validator.escape(bank_name),
-        bankAccountNumber: validator.isEmpty(bank_account) ? null : validator.escape(bank_account),
-        ifscCode: validator.isEmpty(ifsc_code) ? null : validator.escape(ifsc_code),
-        aadharNumber: validator.isEmpty(aadhar_number) ? null : validator.escape(aadhar_number),
-        panNumber: validator.isEmpty(pan_number) ? null : validator.escape(pan_number),
-        reference: validator.isEmpty(reference) ? null : validator.escape(reference),
-        photo: validator.isEmpty(photo) ? null : validator.escape(photo),
-        role: validator.isEmpty(role) ? null : validator.escape(role),
-        comments: validator.isEmpty(comments) ? null : validator.escape(comments)
-    };
-
+// List all grades
+exports.getGrades = async (req, res) => {
     try {
-        // check if employee email already exist
-        const result = await MasterEmployeeModel.findOne({ where: { emailId: email } });
-          
-        // debug
-        console.log("Result-Create Employee",result)
-                if (result) {
-                    res.status(409).json({ message: 'Employee already exists' });
-                    
-                } else {
-                    const employee = await MasterEmployeeModel.create(sanitizedData);
-                    res.status(201).json({ message: 'Employee was created.' });
-                }
-         
-        // const employee = await MasterEmployee.create(sanitizedData);
-        // res.status(201).json(employee);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+        const grades = await MasterGradeModel.findAll();
 
-// // Read an employee by ID
-// exports.getEmployeeById = async (req, res) => {
-//     try {
-//         const employee = await MasterEmployee.findByPk(req.params.id);
-//         if (employee) {
-//             res.status(200).json(employee);
-//         } else {
-//             res.status(404).json({ message: 'Employee not found' });
-//         }
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// };
+        // Log successful data retrieval
+        console.log("Fetched all grade data successfully.",grades);
 
-// Update an employee by ID
-exports.updateEmployee = async (req, res) => {
-    const {
-        employee_name,
-        designation = '',
-        doj = '',
-        dol = '',
-        gender = '',
-        dob = '',
-        blood_group = '',
-        address = '',
-        primary_mobile = '',
-        email,
-        father_name = '',
-        mother_name = '',
-        father_mobile = '',
-        mother_mobile = '',
-        spouse_name = '',
-        spouse_mobile = '',
-        bank_name = '',
-        bank_account = '',
-        ifsc_code = '',
-        aadhar_number = '',
-        pan_number = '',
-        reference = '',
-        photo = '',
-        role = '',
-        comments = ''
-    } = req.body;
-
-     // Validate required fields
-     if (!validator.isAlpha(employee_name.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-        return res.status(400).send('Invalid employee name');
-    }
-
-    if (!validator.isEmail(email)) {
-        return res.status(400).send('Invalid email address');
-    }
-
-    // Handle optional fields
-    const sanitizedData = {
-        empId: req.params.id, 
-        employeeName: validator.escape(employee_name),
-        designation: validator.isEmpty(designation) ? null : validator.escape(designation),
-        dateOfJoining: validator.isEmpty(doj) ? null : validator.escape(doj),
-        dateOfLeaving: validator.isEmpty(dol) ? null : validator.escape(dol),
-        gender: validator.isEmpty(gender) ? null : validator.escape(gender),
-        dateOfBirth: validator.isEmpty(dob) ? null : validator.escape(dob),
-        bloodGroup: validator.isEmpty(blood_group) ? null : validator.escape(blood_group),
-        address: validator.isEmpty(address) ? null : validator.escape(address),
-        primaryMobileNumber: validator.isEmpty(primary_mobile) ? null : validator.escape(primary_mobile),
-        emailId: validator.escape(email),
-        fatherName: validator.isEmpty(father_name) ? null : validator.escape(father_name),
-        motherName: validator.isEmpty(mother_name) ? null : validator.escape(mother_name),
-        fatherMobileNumber: validator.isEmpty(father_mobile) ? null : validator.escape(father_mobile),
-        motherMobileNumber: validator.isEmpty(mother_mobile) ? null : validator.escape(mother_mobile),
-        spouseName: validator.isEmpty(spouse_name) ? null : validator.escape(spouse_name),
-        spouseMobileNumber: validator.isEmpty(spouse_mobile) ? null : validator.escape(spouse_mobile),
-        bankName: validator.isEmpty(bank_name) ? null : validator.escape(bank_name),
-        bankAccountNumber: validator.isEmpty(bank_account) ? null : validator.escape(bank_account),
-        ifscCode: validator.isEmpty(ifsc_code) ? null : validator.escape(ifsc_code),
-        aadharNumber: validator.isEmpty(aadhar_number) ? null : validator.escape(aadhar_number),
-        panNumber: validator.isEmpty(pan_number) ? null : validator.escape(pan_number),
-        reference: validator.isEmpty(reference) ? null : validator.escape(reference),
-        photo: validator.isEmpty(photo) ? null : validator.escape(photo),
-        role: validator.isEmpty(role) ? null : validator.escape(role),
-        comments: validator.isEmpty(comments) ? null : validator.escape(comments)
-    };
-    try {
-        const [updated] = await MasterEmployeeModel.update(sanitizedData, {
-            where: { empId: req.params.id }
+        return res.render("dashboard/grades/index", {
+            title: "grades",
         });
-        if (updated) {
-            const updatedEmployee = await MasterEmployeeModel.findByPk(req.params.id);
-            res.status(200).json(updatedEmployee);
-        } else {
-            res.status(404).json({ message: 'Employee not found' });
-        }
     } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// Delete an employee by ID
-exports.deleteEmployee = async (req, res) => {
-    try {
-        const deleted = await MasterEmployeeModel.destroy({
-            where: { empId: req.params.id }
+        console.error("Error fetching grade data:", error);
+        return res.status(500).send({
+            message: "Failed to retrieve grade data. Please try again later.",
         });
-        if (deleted) {
-            res.status(204).send(); // No content
-        } else {
-            res.status(404).json({ message: 'Employee not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
     }
 };
 
-// List all employees
-exports.getAllEmployees = async (req, res) => {
+// List all grades (API)
+exports.getGradesApi = async (req, res) => {
+    // Debugging: Function has been called
+    console.log("Request received at getGradesApi");
+
     try {
-        const employees = await MasterEmployeeModel.findAll();
-         
-        // convert to plain array of object
-        const resolvedData = employees.map((item) => item.dataValues);
+        // Fetch all grades from the database
+        const grades = await MasterGradeModel.findAll();
         
-        // debug
-        console.log("ResolvedData-getAllEmployees", resolvedData)
-        res.render("dashboard/employees/index", {
-            title: "All Employees",
-            data: resolvedData,
+        // Debugging: Log the number of grades fetched
+        console.log(`Fetched ${grades.length} grades successfully from the API.`);
+
+        // Send the response with the data
+        return res.status(200).json({ 
+            success: true, 
+            message: "grades retrieved successfully", 
+            data: grades
         });
-        // res.status(200).json(employees);
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        // Error handling: Log the error details
+        console.error("Error occurred in getGradesApi:", error);
+
+        // Send error response
+        return res.status(500).json({ 
+            success: false, 
+            message: "Failed to retrieve grades. Please try again later.", 
+            error: error.message 
+        });
+    }
+};
+
+
+
+// Create a new grade
+exports.createGradeApi = async (req, res) => {
+    try {
+        // Extract grade data from request body
+        // const { gradeName } = req.body; 
+     
+
+        // Prepare the resolved data
+        const resolvedData = { 
+            gradeType: "AB", 
+        };
+
+        // Create a new grade
+        const newGrade = await MasterGradeModel.create(resolvedData);
+
+        // Log successful grade creation
+        console.log("Created new grade successfully:", newGrade);
+
+        return res.status(201).send({
+            success: true,
+            message: "grade created successfully.",
+            data: newGrade,
+        });
+    } catch (error) {
+        console.error("Error creating grade:", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to create grade. Please try again later.",
+            error: error.message, 
+        });
+    }
+};
+
+// Delete an grade by ID
+exports.deleteGradeApi = async (req, res) => {
+    try {
+        // Extract grade ID from request parameters
+        const { id } = req.params;
+
+        // Check if the grade exists before attempting to delete
+        const grade = await MasterGradeModel.findByPk(Number(id));
+        if (!grade) {
+            return res.status(404).send({
+                success: false,
+                message: "Grade not found.",
+            });
+        }
+
+        // Delete the grade
+        await grade.destroy();
+
+        // Log successful grade deletion
+        console.log("Deleted grade successfully:", grade);
+
+        return res.status(200).send({
+            success: true,
+            message: "Grade deleted successfully.",
+        });
+    } catch (error) {
+        console.error("Error deleting grade:", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to delete grade. Please try again later.",
+            error: error.message,
+        });
     }
 };

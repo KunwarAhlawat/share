@@ -15,6 +15,80 @@ const productsController = require('../controllers/productsController');
 const productGroupsController = require('../controllers/productGroupsController');
 const employeesController = require('../controllers/employeesController');
 
+
+const testController = require('../controllers/testController');
+
+// All routes related to dashboard
+
+// customer routes----------------------------------------------------------------------------------------------------------
+router.get('/dashboard/customers', customersController.getCustomers);
+
+// api
+router.get('/api/customers', customersController.getCustomersApi);
+router.post('/api/customer/create',customersController.createCustomerApi);
+router.delete('/api/customer/delete/:id', customersController.deleteCustomerApi);
+
+// employees routes-----------------------------------------------------------------------------------------------------
+router.get('/dashboard/employees', employeesController.getEmployees);
+
+
+// api
+router.get('/api/employees', employeesController.getEmployeesApi);
+router.get('/api/employee/create',employeesController.createEmployee);
+router.delete('/api/employee/delete/:id', employeesController.deleteEmployeeApi);
+
+// firms routes--------------------------------------------------------------------------------------------------------
+router.get('/dashboard/firms',firmsController.getFirms );
+
+// api
+router.get('/api/firms', firmsController.getFirmsApi);
+router.get('/api/firm/create',firmsController.createFirmsApi);
+router.delete('/api/firms/delete/:id', firmsController.deleteFirmApi);
+
+// products routes--------------------------------------------------------------------------------------------------
+router.get('/dashboard/products',productsController.getProducts );
+
+// api
+router.get('/api/products', productsController.getProductsApi);
+router.get('/api/product/create',productsController.createProductsApi);
+router.delete('/api/product/delete/:id', productsController.deleteProductApi);
+
+// area routes----------------------------------------------------------------------------------------------------
+router.get('/dashboard/areas',areasController.getAreas);
+
+// api
+router.get('/api/areas', areasController.getAreasApi);
+router.post('/api/area/create',upload.single('file'), areasController.createAreaApi);
+router.delete('/api/area/delete/:id', areasController.deleteAreaApi);
+
+// grade routes-------------------------------------------------------------------------------------------------
+router.get('/dashboard/grades',gradesController.getGrades);
+
+// api
+router.get('/api/grades', gradesController.getGradesApi);
+router.get('/api/grade/create',gradesController.createGradeApi);
+router.delete('/api/grade/delete/:id', gradesController.deleteGradeApi);
+
+
+
+// productGroups routes--------------------------------------------------------------------------------------------
+router.get('/dashboard/product-groups',productGroupsController.getProductGroups);
+
+// api
+router.get('/api/product-groups', productGroupsController.getProductGroupsApi);
+router.get('/api/product-group/create',productGroupsController.createProductGroupApi);
+router.delete('/api/product-group/delete/:id', productGroupsController.deleteProductGroupApi);
+
+
+// categories routes-------------------------------------------------------------------------------------------------
+router.get('/dashboard/categories',categoriesController.getCategories);
+
+// api
+router.get('/api/categories', categoriesController.getCategoriesApi);
+router.get('/api/category/create',categoriesController.createCategoryApi);
+router.delete('/api/category/delete/:id', categoriesController.deleteCategoryApi);
+
+
 // Auth Controllers
 // const authController = require('../controllers/authController');
 
@@ -28,35 +102,43 @@ const employeesController = require('../controllers/employeesController');
 
 // customers routes
 
-router.get('/dashboard/customers', customersController.getAllCustomers);
-router.get('/api/dashboard/customers', customersController.getAllCustomersApi);
-router.post('/api/dashboard/customer/create', customersController.apiCreateCustomer);
+// router.get('/api/dashboard/customers', customersController.getAllCustomersApi);
+// router.post('/api/dashboard/customer/create', customersController.apiCreateCustomer);
 // router.post('/dashboard/customer/create', upload.single('photo'), customersController.createCustomer);
 // router.post('/dashboard/customer/edit/:id', upload.single('photo'),customersController.updateCustomer);
 // router.delete('/dashboard/customer/delete/:id', customersController.deleteCustomer);
 
 // employees routes
-router.get('/dashboard/employees', employeesController.getAllEmployees);
-router.post('/dashboard/employees/create', upload.single('photo'), employeesController.createEmployee);
-router.post('/dashboard/employees/edit/:id', upload.single('photo'),employeesController.updateEmployee);
-router.delete('/dashboard/employees/delete/:id', employeesController.deleteEmployee);
+
+// router.post('/dashboard/employee/create', upload.single('photo'), employeesController.createEmployee);
+// router.post('/dashboard/employee/edit/:id', upload.single('photo'),employeesController.updateEmployee);
+// router.delete('/dashboard/employee/delete/:id', employeesController.deleteEmployee);
+
+// router.get('/api/dashboard/employees', employeesController.getAllEmployeesApi);
+
+// profile
+router.get('/dashboard/profile/:id', dashboardController.profile);
+
+// test
+router.get('/test', testController.getView);
+router.post('/test/create', testController.create);
 
 // area routes
-router.get('/dashboard/areas',areasController.getAllArea );
-router.post('/dashboard/area/create', areasController.createArea);
-router.post('/dashboard/area/update/edit/:id', areasController.updateArea);
-router.delete('/dashboard/area/delete/:id', areasController.deleteArea);
-// apis
-router.get('/api/dashboard/areas', areasController.getAllAreaApi);
+
+// router.post('/dashboard/area/create', areasController.createArea);
+// router.post('/dashboard/area/update/edit/:id', areasController.updateArea);
+// router.delete('/dashboard/area/delete/:id', areasController.deleteArea);
+// // apis
+// router.get('/api/dashboard/areas', areasController.getAllAreaApi);
 
 // firm routes
-router.get('/dashboard/firms',firmsController.getAllFirm );
-router.post('/dashboard/firm/create', firmsController.createFirm);
-router.post('/dashboard/firm/update/edit/:id', firmsController.updateFirm);
-router.delete('/dashboard/firm/delete/:id', firmsController.deleteFirm);
+
+// router.post('/dashboard/firm/create', firmsController.createFirm);
+// router.post('/dashboard/firm/update/edit/:id', firmsController.updateFirm);
+// router.delete('/dashboard/firm/delete/:id', firmsController.deleteFirm);
 
 // category routes
-router.get('/dashboard/categories',categoriesController.getAllCategory );
+
 // router.post('/dashboard/category/create', categoriesController.createCategory);
 // router.post('/dashboard/category/update/edit/:id', categoriesController.updateCategory);
 // router.delete('/dashboard/category/delete/:id', categoriesController.deleteCategory);

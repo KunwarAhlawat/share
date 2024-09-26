@@ -13,12 +13,27 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(255), // Name or identifier of the team member
       allowNull: false, // Ensure team member field is not null
       unique: true, // Ensure uniqueness of the team member
-      comment: "Name or identifier of the team member"
+      comment: "Name or identifier of the team member",
+      validate: {
+        notEmpty: {
+          msg: "Team member cannot be empty."
+        },
+        is: {
+          args: /^[a-zA-Z\s]*$/,
+          msg: "Team member can only contain letters and spaces."
+        }
+      }
     },
     teamLeader: {
       type: DataTypes.STRING(255), // Name or identifier of the team leader
       allowNull: true, // Allow null if team leader is not assigned
-      comment: "Name or identifier of the team leader"
+      comment: "Name or identifier of the team leader",
+      validate: {
+        is: {
+          args: /^[a-zA-Z\s]*$/,
+          msg: "Team leader can only contain letters and spaces."
+        }
+      }
     }
   }, {
     sequelize,
@@ -33,14 +48,7 @@ module.exports = function(sequelize, DataTypes) {
           { name: "teamId" }
         ]
       },
-      {
-        name: "unique_teamMember", // Index to enforce uniqueness of teamMember
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "teamMember" }
-        ]
-      }
+     
     ]
   });
 };

@@ -3,131 +3,217 @@ const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('master_customers', {
     customerId: {
-      type: DataTypes.STRING(255), // Customer unique identifier
-      allowNull: false, // Primary key should not allow null
-      primaryKey: true, 
-      comment: "Unique identifier for the customer"
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      primaryKey: true,
+      comment: "Unique identifier for the customer",
+      validate: {
+        notEmpty: {
+          msg: "Customer ID cannot be empty."
+        },
+        len: {
+          args: [1, 255],
+          msg: "Customer ID must be between 1 and 255 characters long."
+        },
+        isAlphanumeric: {
+          msg: "Customer ID must contain only letters and numbers."
+        }
+      }
     },
     customerCode: {
-      type: DataTypes.STRING(255), // Code for the customer
-      allowNull: false, // This is essential
-      unique: true, // Make customerCode unique
-      comment: "Unique code representing the customer"
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: "Unique code representing the customer",
+      validate: {
+        notEmpty: {
+          msg: "Customer code cannot be empty."
+        },
+        len: {
+          args: [1, 255],
+          msg: "Customer code must be between 1 and 255 characters long."
+        },
+        isAlphanumeric: {
+          msg: "Customer code must contain only letters and numbers."
+        }
+      }
     },
     customerName: {
-      type: DataTypes.STRING(255), // Full name of the customer
-      allowNull: false, // Customer name should not be null
-      comment: "Customer's full name"
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: "Customer's full name",
+      validate: {
+        notEmpty: {
+          msg: "Customer name cannot be empty."
+        },
+        len: {
+          args: [1, 255],
+          msg: "Customer name must be between 1 and 255 characters long."
+        },
+        is: {
+          args: /^[a-zA-Z\s]+$/,
+          msg: "Customer name can only contain letters and spaces."
+        }
+      }
     },
     areaId: {
-      type: DataTypes.INTEGER, // Geographical area - references to master_areas table,as many to one
-      allowNull: true, 
-      comment: "Customer's area (change or refine later)",
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: "Customer's area (referenced from master_areas)",
       references: {
         model: 'master_areas',
         key: 'areaId'
       },
+      validate: {
+        isInt: {
+          msg: "Area ID must be an integer."
+        }
+      }
     },
     status: {
-      type: DataTypes.ENUM('VERIFIED', 'UNVERIFIED'), // Customer status
-      allowNull: false, // Mandatory to indicate verification status
-      defaultValue: 'UNVERIFIED', // Default to UNVERIFIED
+      type: DataTypes.ENUM('VERIFIED', 'UNVERIFIED'),
+      allowNull: false,
+      defaultValue: 'UNVERIFIED',
       comment: "Verification status of the customer"
     },
     gradeId: {
-      type: DataTypes.INTEGER, // references to master_areas table,as many to one
+      type: DataTypes.INTEGER,
       allowNull: true,
       comment: "Customer grade or classification",
       references: {
         model: 'master_grades',
         key: 'gradeId'
       },
+      validate: {
+        isInt: {
+          msg: "Grade ID must be an integer."
+        }
+      }
     },
     pincode: {
-      type: DataTypes.INTEGER, // Pincode of the customer's location
+      type: DataTypes.INTEGER,
       allowNull: true,
-      comment: "Area postal code"
+      comment: "Area postal code",
+      validate: {
+        isNumeric: {
+          msg: "Pincode must contain only numbers."
+        },
+        len: {
+          args: [5, 6],
+          msg: "Pincode must be 5 or 6 digits long."
+        }
+      }
     },
     address: {
-      type: DataTypes.STRING(255), // Address information
+      type: DataTypes.STRING(255),
       allowNull: true,
-      comment: "Customer's complete address"
+      comment: "Customer's complete address",
+      validate: {
+        len: {
+          args: [0, 255],
+          msg: "Address must be less than or equal to 255 characters long."
+        }
+      }
     },
     referenceName1: {
-      type: DataTypes.STRING(255), // First reference name
+      type: DataTypes.STRING(255),
       allowNull: true,
-      comment: "First reference person for the customer"
+      comment: "First reference person for the customer",
+      validate: {
+        len: {
+          args: [0, 255],
+          msg: "Reference name must be less than or equal to 255 characters long."
+        }
+      }
     },
     reference1ContactNumber: {
-      type: DataTypes.STRING(255), // Contact number of reference 1
+      type: DataTypes.STRING(255),
       allowNull: true,
-      comment: "Contact number of the first reference"
+      comment: "Contact number of the first reference",
+      validate: {
+        isNumeric: {
+          msg: "Contact number must contain only numbers."
+        },
+        len: {
+          args: [10, 15],
+          msg: "Contact number must be between 10 and 15 digits long."
+        }
+      }
     },
     referenceName2: {
-      type: DataTypes.STRING(255), // Second reference name
+      type: DataTypes.STRING(255),
       allowNull: true,
-      comment: "Second reference person for the customer"
+      comment: "Second reference person for the customer",
+      validate: {
+        len: {
+          args: [0, 255],
+          msg: "Reference name must be less than or equal to 255 characters long."
+        }
+      }
     },
     reference2ContactNumber: {
-      type: DataTypes.STRING(255), // Contact number of reference 2
+      type: DataTypes.STRING(255),
       allowNull: true,
-      comment: "Contact number of the second reference"
+      comment: "Contact number of the second reference",
+      validate: {
+        isNumeric: {
+          msg: "Contact number must contain only numbers."
+        },
+        len: {
+          args: [10, 15],
+          msg: "Contact number must be between 10 and 15 digits long."
+        }
+      }
     },
     creditLimit: {
-      type: DataTypes.INTEGER, // Credit limit assigned to the customer
+      type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 0, // Default credit limit to 0
-      comment: "Credit limit for the customer"
+      comment: "Credit limit for the customer",
+      validate: {
+        isInt: {
+          msg: "Credit limit must be an integer."
+        },
+        min: {
+          args: [0],
+          msg: "Credit limit cannot be negative."
+        }
+      }
     },
     creditDays: {
-      type: DataTypes.INTEGER, // Number of credit days allowed
+      type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 0, // Default credit days to 0
-      comment: "Number of days the customer has credit"
+      comment: "Number of days the customer has credit",
+      validate: {
+        isInt: {
+          msg: "Credit days must be an integer."
+        },
+        min: {
+          args: [0],
+          msg: "Credit days cannot be negative."
+        }
+      }
     },
     customerStatus: {
-      type: DataTypes.ENUM('active', 'inactive', 'closed'), // Customer's overall status
+      type: DataTypes.ENUM('active', 'inactive', 'closed'),
       allowNull: false,
-      defaultValue: 'active', // Default status to 'active'
+      defaultValue: 'active',
       comment: "Status of the customer account"
     },
     allotmentId: {
-      type: DataTypes.STRING(255), // ID referencing an external allotment plan
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "Reference to allotment plan (if applicable)"
-      // Uncomment the following block when `allot_market_plans` is defined
-      /*
-      references: {
-        model: 'allot_market_plans', // Ensure this model exists and is correctly defined
-        key: 'allotmentId'
-      }
-      */
     }
   }, {
     sequelize,
-    tableName: 'master_customers', // Database table name
-    timestamps: true, // Add timestamps (createdAt and updatedAt)
+    tableName: 'master_customers',
+    timestamps: true,
     indexes: [
       {
-        name: "PRIMARY", // Index on the primary key
+        name: "PRIMARY",
         unique: true,
         using: "BTREE",
         fields: [{ name: "customerId" }]
       },
-      {
-        name: "unique_customerCode", // Index on customerCode for uniqueness
-        unique: true,
-        using: "BTREE",
-        fields: [{ name: "customerCode" }]
-      }
-      // Uncomment the following block if you want to index allotmentId
-      /*
-      {
-        name: "allotmentId",
-        using: "BTREE",
-        fields: [{ name: "allotmentId" }]
-      }
-      */
     ]
   });
 };

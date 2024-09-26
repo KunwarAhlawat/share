@@ -11,8 +11,21 @@ module.exports = function(sequelize, DataTypes) {
     },
     productGroupName: {
       type: DataTypes.STRING(255), // Name of the product group
-      allowNull: true, // Allow null if name is not provided
-      comment: "Name of the product group"
+      allowNull: false, // Ensure product group name is not null
+      comment: "Name of the product group",
+      validate: {
+        notEmpty: {
+          msg: "Product group name cannot be empty."
+        },
+        is: {
+          args: /^[a-zA-Z\s]*$/, // Only letters and spaces are allowed
+          msg: "Product group name can only contain letters and spaces."
+        },
+        len: {
+          args: [3, 255], // Ensures the name is between 3 and 255 characters
+          msg: "Product group name must be between 3 and 255 characters."
+        }
+      }
     }
   }, {
     sequelize,

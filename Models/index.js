@@ -13,6 +13,7 @@ const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.p
 const MasterCustomerModel = require('./MasterCustomers')(sequelize, DataTypes);
 const MasterCategoriesModel = require('./MasterCategories')(sequelize, DataTypes);
 const MasterProductsModel = require('./MasterProducts')(sequelize, DataTypes);
+const MasterProductGroupsModel = require('./MasterProductGroups')(sequelize, DataTypes);
 const MasterFirmModel = require('./MasterFirms')(sequelize, DataTypes);
 const MasterEmployeeModel = require('./MasterEmployees')(sequelize, DataTypes);
 const MasterAreaModel = require('./MasterAreas')(sequelize, DataTypes);
@@ -21,6 +22,8 @@ const CustomerCategoryModel = require('./CustomersCategories')(sequelize, DataTy
 const CustomerFirmModel = require('./CustomersFirms')(sequelize, DataTypes);
 const CustomerProductModel = require('./CustomersProducts')(sequelize, DataTypes);
 const CustomerContactsModel = require('./CustomersContacts')(sequelize, DataTypes);
+
+const TestModel = require('./Test')(sequelize, DataTypes);
 
 // Define relationships
 // Many-to-Many Relationship
@@ -46,9 +49,11 @@ CustomerContactsModel.belongsTo(MasterCustomerModel, {
 // One-to-Many Relationship
 MasterAreaModel.hasMany(MasterCustomerModel, {
     foreignKey: 'areaId',
+    as: 'customers' 
 });
 MasterCustomerModel.belongsTo(MasterAreaModel, {
-    foreignKey: 'areaId'
+    foreignKey: 'areaId',
+    as: 'area'
 });
 
 MasterGradeModel.hasMany(MasterCustomerModel, {
@@ -71,4 +76,6 @@ module.exports = {
     CustomerCategoryModel,
     CustomerFirmModel,
     CustomerProductModel,
+    MasterProductGroupsModel,
+    TestModel
   };

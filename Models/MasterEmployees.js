@@ -3,189 +3,252 @@ const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('master_employees', {
     empId: {
-      type: DataTypes.STRING(225), // Employee unique identifier
-      allowNull: false, // Primary key should not be null
+      type: DataTypes.STRING(225),
+      allowNull: false,
       primaryKey: true,
-      comment: "Unique identifier for the employee"
+      comment: "Unique identifier for the employee",
+      validate: {
+        notEmpty: { msg: "Employee ID cannot be empty." },
+        isAlphanumeric: { msg: "Employee ID must be alphanumeric." }
+      }
     },
     employeeName: {
-      type: DataTypes.STRING(255), // Full name of the employee
-      allowNull: true,
-      comment: "Full name of the employee"
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: "Full name of the employee",
+      validate: {
+        notEmpty: { msg: "Employee name cannot be empty." },
+        is: {
+          args: /^[a-zA-Z\s]*$/,
+          msg: "Employee name can only contain letters and spaces."
+        }
+      }
     },
     designation: {
-      type: DataTypes.STRING(255), // Job title or role
-      allowNull: true,
-      comment: "Employee's job title or role"
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: "Employee's job title or role",
+      validate: { notEmpty: { msg: "Designation cannot be empty." } }
     },
     dateOfJoining: {
-      type: DataTypes.DATEONLY, // Only the date, no time component
-      allowNull: true,
-      defaultValue: null, // Use null for unset values
-      comment: "Date when the employee joined"
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+      comment: "Date when the employee joined",
+      validate: {
+        notEmpty: { msg: "Date of joining cannot be empty." },
+        isDate: { msg: "Date of joining must be a valid date." }
+      }
     },
     dateOfLeaving: {
-      type: DataTypes.DATEONLY, // Only the date, no time component
+      type: DataTypes.DATEONLY,
       allowNull: true,
-      defaultValue: null, // Use null for unset values
-      comment: "Date when the employee left (if applicable)"
+      defaultValue: null,
+      comment: "Date when the employee left (if applicable)",
+      validate: { isDate: { msg: "Date of leaving must be a valid date." } }
     },
     gender: {
-      type: DataTypes.STRING(255), // Gender of the employee
-      allowNull: true,
-      comment: "Gender of the employee"
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: "Gender of the employee",
+      validate: {
+        notEmpty: { msg: "Gender cannot be empty." },
+        isIn: {
+          args: [['Male', 'Female', 'Other']],
+          msg: "Gender must be one of 'Male', 'Female', or 'Other'."
+        }
+      }
     },
     dateOfBirth: {
-      type: DataTypes.DATEONLY, // Only the date, no time component
+      type: DataTypes.DATEONLY,
       allowNull: true,
-      comment: "Date of birth of the employee"
+      comment: "Date of birth of the employee",
+      validate: { isDate: { msg: "Date of birth must be a valid date." } }
     },
     bloodGroup: {
-      type: DataTypes.STRING(255), // Blood group of the employee
+      type: DataTypes.STRING(255),
       allowNull: true,
-      comment: "Blood group of the employee"
+      comment: "Blood group of the employee",
+      validate: {
+        isIn: {
+          args: [['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown']],
+          msg: "Blood group must be one of 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', or 'Unknown'."
+        }
+      }
     },
     address: {
-      type: DataTypes.STRING(255), // Residential address
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "Residential address of the employee"
     },
     primaryMobileNumber: {
-      type: DataTypes.STRING(50), // Primary contact number
-      allowNull: true,
-      comment: "Primary mobile number of the employee"
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      comment: "Primary mobile number of the employee",
+      validate: {
+        notEmpty: { msg: "Primary mobile number cannot be empty." },
+        is: {
+          args: /^[0-9]{10}$/,
+          msg: "Primary mobile number must be a 10-digit number."
+        }
+      }
     },
     fatherName: {
-      type: DataTypes.STRING(255), // Father's name
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "Father's name of the employee"
     },
     motherName: {
-      type: DataTypes.STRING(255), // Mother's name
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "Mother's name of the employee"
     },
     fatherMobileNumber: {
-      type: DataTypes.STRING(50), // Father's contact number
+      type: DataTypes.STRING(50),
       allowNull: true,
-      defaultValue: null, // Use null for unset values
-      comment: "Father's mobile number"
+      comment: "Father's mobile number",
+      validate: {
+        is: {
+          args: /^[0-9]{10}$/,
+          msg: "Father's mobile number must be a 10-digit number."
+        }
+      }
     },
     motherMobileNumber: {
-      type: DataTypes.STRING(50), // Mother's contact number
+      type: DataTypes.STRING(50),
       allowNull: true,
-      defaultValue: null, // Use null for unset values
-      comment: "Mother's mobile number"
+      comment: "Mother's mobile number",
+      validate: {
+        is: {
+          args: /^[0-9]{10}$/,
+          msg: "Mother's mobile number must be a 10-digit number."
+        }
+      }
     },
     spouseName: {
-      type: DataTypes.STRING(255), // Spouse's name
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "Spouse's name (if applicable)"
     },
     spouseMobileNumber: {
-      type: DataTypes.STRING(50), // Spouse's contact number
+      type: DataTypes.STRING(50),
       allowNull: true,
-      defaultValue: null, // Use null for unset values
-      comment: "Spouse's mobile number (if applicable)"
+      comment: "Spouse's mobile number (if applicable)",
+      validate: {
+        is: {
+          args: /^[0-9]{10}$/,
+          msg: "Spouse's mobile number must be a 10-digit number."
+        }
+      }
     },
     emailId: {
-      type: DataTypes.STRING(255), // Email address
+      type: DataTypes.STRING(255),
       allowNull: true,
-      unique: true, // Ensure emailId is unique
-      comment: "Unique email address of the employee"
+      comment: "Unique email address of the employee",
+      validate: {
+        notEmpty: { msg: "Email ID cannot be empty." },
+        isEmail: { msg: "Email ID must be a valid email format." }
+      }
     },
     bankName: {
-      type: DataTypes.STRING(255), // Bank name for salary
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "Bank name where the salary is deposited"
     },
     bankAccountNumber: {
-      type: DataTypes.STRING(50), // Bank account number
+      type: DataTypes.STRING(50),
       allowNull: true,
-      unique: true, // Ensure bankAccountNumber is unique
-      defaultValue: null, // Use null for unset values
-      comment: "Bank account number"
+      comment: "Bank account number",
+      validate: {
+        isNumeric: { msg: "Bank account number must contain only numbers." }
+      }
     },
     ifscCode: {
-      type: DataTypes.STRING(50), // IFSC code for bank transactions
+      type: DataTypes.STRING(50),
       allowNull: true,
-      defaultValue: null, // Use null for unset values
-      comment: "IFSC code of the bank"
+      comment: "IFSC code of the bank",
+      validate: {
+        isAlphanumeric: { msg: "IFSC code must be alphanumeric." }
+      }
     },
     aadharNumber: {
-      type: DataTypes.STRING(50), // Aadhar number (for Indian employees)
+      type: DataTypes.STRING(50),
       allowNull: true,
-      unique: true, // Ensure aadharNumber is unique
-      defaultValue: null, // Use null for unset values
-      comment: "Aadhar number (if applicable)"
+      comment: "Aadhar number (if applicable)",
+      validate: {
+        isNumeric: { msg: "Aadhar number must contain only numbers." },
+        len: {
+          args: [12, 12],
+          msg: "Aadhar number must be exactly 12 digits."
+        }
+      }
     },
     panNumber: {
-      type: DataTypes.STRING(50), // PAN number (for Indian employees)
+      type: DataTypes.STRING(50),
       allowNull: true,
-      unique: true, // Ensure panNumber is unique
-      defaultValue: null, // Use null for unset values
-      comment: "PAN number (if applicable)"
+      comment: "PAN number (if applicable)",
+      validate: {
+        is: {
+          args: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+          msg: "PAN number must be in the format 'ABCDE1234F'."
+        }
+      }
     },
     reference: {
-      type: DataTypes.STRING(255), // Reference details (if applicable)
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "Reference details for the employee"
     },
     referenceContactNumber: {
-      type: DataTypes.STRING(50), // Contact number of the reference
+      type: DataTypes.STRING(50),
       allowNull: true,
-      comment: "Contact number of the reference person"
+      comment: "Contact number of the reference person",
+      validate: {
+        is: {
+          args: /^[0-9]{10}$/,
+          msg: "Reference contact number must be a 10-digit number."
+        }
+      }
     },
     photo: {
-      type: DataTypes.STRING(255), // URL or path to employee's photo
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "URL or path to the employee's photo"
     },
     password: {
-      type: DataTypes.STRING(255), // Password for employee login (hashed)
-      allowNull: true,
-      comment: "Hashed password for employee login"
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: "Hashed password for employee login",
+      validate: {
+        notEmpty: { msg: "Password cannot be empty." },
+        len: {
+          args: [8, 255],
+          msg: "Password must be at least 8 characters long."
+        }
+      }
     },
     resume: {
-      type: DataTypes.STRING(255), // URL or path to employee's resume
+      type: DataTypes.STRING(255),
       allowNull: true,
       comment: "URL or path to the employee's resume"
+    },
+    role: {
+      type: DataTypes.ENUM('Admin', 'User', 'Moderator'),
+      allowNull: false,
+      comment: "Role of the employee",
+      validate: {
+        notEmpty: { msg: "Role cannot be empty." },
+        isIn: {
+          args: [['Admin', 'User', 'Moderator']],
+          msg: "Role must be one of 'Admin', 'User', or 'Moderator'."
+        }
+      }
     }
   }, {
     sequelize,
-    tableName: 'master_employees', // Database table name
-    timestamps: true, // Add timestamps (createdAt and updatedAt)
+    tableName: 'master_employees',
+    timestamps: true,
     indexes: [
-      {
-        name: "PRIMARY", // Index on the primary key
-        unique: true,
-        using: "BTREE",
-        fields: [{ name: "empId" }]
-      },
-      {
-        name: "emailId", // Index to ensure unique emailId
-        unique: true,
-        using: "BTREE",
-        fields: [{ name: "emailId" }]
-      },
-      {
-        name: "aadharNumber", // Index to ensure unique aadharNumber
-        unique: true,
-        using: "BTREE",
-        fields: [{ name: "aadharNumber" }]
-      },
-      {
-        name: "panNumber", // Index to ensure unique panNumber
-        unique: true,
-        using: "BTREE",
-        fields: [{ name: "panNumber" }]
-      },
-      {
-        name: "bankAccountNumber", // Index to ensure unique bankAccountNumber
-        unique: true,
-        using: "BTREE",
-        fields: [{ name: "bankAccountNumber" }]
-      }
+      { name: "PRIMARY", unique: true, using: "BTREE", fields: [{ name: "empId" }] },
     ]
   });
 };

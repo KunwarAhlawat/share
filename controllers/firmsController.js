@@ -1,197 +1,134 @@
-const { MasterFirmModel } = require('../Models/index'); 
-const { v4: uuidv4 } = require("uuid"); 
-const validator = require('validator');
-
-// Create a new firm
-exports.createFirm = async (req, res) => {
-   
-    // debug
-    console.log("req.body-createFirm",req.body)
-    const {
-        firm_name,
-        firm_address,
-        firm_pincode,
-        product_produced = '',
-        product_quantity = '',
-        gst_number = '',
-        account_number = '',
-        bank_name = '',
-        ifsc_code = '',
-    } = req.body;
-
-     // Validate required fields
-     if (!validator.isAlpha(firm_name.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-        return res.status(400).send('Invalid Firm name');
-    }
-    if (!validator.isAlpha(firm_address.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-        return res.status(400).send('Invalid Firm address');
-    }
-
-    if (firm_pincode && typeof firm_pincode === 'string') {
-        if (!validator.isNumeric(firm_pincode.replace(/\s/g, ''))) {
-            return res.status(400).send('Invalid Firm pincode');
-        }
-    } else {
-        return res.status(400).send('Firm pincode is required and must be a string');
-    }
-    
+const { MasterFirmModel } = require('../Models/index'); ; 
+const { v4: uuidv4 } = require("uuid");
 
 
-  
-
-    // Handle optional fields
-    const sanitizedData = {
-        firmId: uuidv4(),
-        firmName: validator.escape(firm_name),
-        address: validator.escape(firm_address),
-        pincode: validator.escape(firm_pincode),
-        GSTNumber: validator.isEmpty(gst_number) ? null : validator.escape(gst_number),
-        accountNumber: validator.isEmpty(account_number) ? null : validator.escape(account_number),
-        bankName: validator.isEmpty(bank_name) ? null : validator.escape(bank_name),
-        IFSCcode: validator.isEmpty(ifsc_code) ? null : validator.escape(ifsc_code),
-        ProductProduced: validator.isEmpty(product_produced) ? null : validator.escape(product_produced),
-        Quantity: validator.isEmpty(product_quantity) ? null : validator.escape(product_quantity),
-       
-     
-    };
-
+// List all firms 
+exports.getFirms = async (req, res) => {
     try {
-        // check if Firm already exist
-        const result = await MasterFirmModel.findOne({ where: { firmName: firm_name } });
-          
-        // debug
-        console.log("Result-Create Employee",result)
-                if (result) {
-                    res.status(409).json({ message: 'Firm already exists' });
-                    
-                } else {
-                    const Firm = await MasterFirmModel.create(sanitizedData);
-                    res.status(201).json({ message: 'Firm was created.' });
-                }
-         
-        // const employee = await MasterEmployee.create(sanitizedData);
-        // res.status(201).json(employee);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+        const firms = await MasterFirmModel.findAll();
 
-// // Read an Firm by id
-// exports.getFirmById = async (req, res) => {
-//     try {
-//         const employee = await MasterFirmModel.findByPk(req.params.id);
-//         if (employee) {
-//             res.status(200).json(employee);
-//         } else {
-//             res.status(404).json({ message: 'Employee not found' });
-//         }
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// };
+        // Log successful data retrieval
+        console.log("Fetched all firms  data successfully.",firms);
 
-// Update an Firm by id
-exports.updateFirm = async (req, res) => {
-    // debug
-    console.log("req.body-createFirm",req.body)
-    const {
-        firm_name,
-        firm_address,
-        firm_pincode,
-        product_produced = '',
-        product_quantity = '',
-        gst_number = '',
-        account_number = '',
-        bank_name = '',
-        ifsc_code = '',
-    } = req.body;
-
-     // Validate required fields
-     if (!validator.isAlpha(firm_name.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-        return res.status(400).send('Invalid Firm name');
-    }
-    if (!validator.isAlpha(firm_address.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-        return res.status(400).send('Invalid Firm address');
-    }
-
-    if (firm_pincode && typeof firm_pincode === 'string') {
-        if (!validator.isNumeric(firm_pincode.replace(/\s/g, ''))) {
-            return res.status(400).send('Invalid Firm pincode');
-        }
-    } else {
-        return res.status(400).send('Firm pincode is required and must be a string');
-    }
-    
-
-
-  
-
-    // Handle optional fields
-    const sanitizedData = {
-        firmId: req.params.id,
-        firmName: validator.escape(firm_name),
-        address: validator.escape(firm_address),
-        pincode: validator.escape(firm_pincode),
-        GSTNumber: validator.isEmpty(gst_number) ? null : validator.escape(gst_number),
-        accountNumber: validator.isEmpty(account_number) ? null : validator.escape(account_number),
-        bankName: validator.isEmpty(bank_name) ? null : validator.escape(bank_name),
-        IFSCcode: validator.isEmpty(ifsc_code) ? null : validator.escape(ifsc_code),
-        ProductProduced: validator.isEmpty(product_produced) ? null : validator.escape(product_produced),
-        Quantity: validator.isEmpty(product_quantity) ? null : validator.escape(product_quantity),
-       
-     
-    };
-
-    try {
-        const [updated] = await MasterFirmModel.update(sanitizedData, {
-            where: { firmId : req.params.id }
+        return res.render("dashboard/firms/index", {
+            title: "firms ",
         });
-        if (updated) {
-            const updatedFirm = await MasterFirmModel.findByPk(req.params.id);
-            res.status(200).json(updatedFirm);
-        } else {
-            res.status(404).json({ message: 'Firm not found' });
-        }
     } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// delete an Firm by id
-exports.deleteFirm = async (req, res) => {
-      // debug
-      console.log("req.id-deleteFirm", typeof req.params.id);
-    // const id = Number(req.params.id);
-    try {
-        const deleted = await MasterFirmModel.destroy({
-            where: { firmId: req.params.id}
+        console.error("Error fetching firms  data:", error);
+        return res.status(500).send({
+            message: "Failed to retrieve firms data. Please try again later.",
         });
-        if (deleted) {
-            res.status(204).send(); // No content
-        } else {
-            res.status(404).json({ message: 'Firm not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
     }
 };
 
-// list all firm
-exports.getAllFirm = async (req, res) => {
+// List all firms  (API)
+exports.getFirmsApi = async (req, res) => {
+    // Debugging: Function has been called
+    console.log("Request received at getFirmsApi");
+
     try {
-        const firm = await MasterFirmModel.findAll();
-         
-        // convert to plain array of object
-        const resolvedData = firm.map((item) => item.dataValues);
+        // Fetch all firms from the database
+        const firms = await MasterFirmModel.findAll();
         
-        // debug
-        console.log("ResolvedData-getAllFirm", resolvedData)
-        res.render("dashboard/firms/index", {
-            title: "All Firm",
-            data: resolvedData,
+        // Debugging: Log the number of firms fetched
+        console.log(`Fetched ${firms.length} firms  successfully from the API.`);
+
+        // Send the response with the data
+        return res.status(200).json({ 
+            success: true, 
+            message: "firms  retrieved successfully", 
+            data: firms
         });
-        // res.status(200).json(employees);
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        // Error handling: Log the error details
+        console.error("Error occurred in getFirmsApi:", error);
+
+        // Send error response
+        return res.status(500).json({ 
+            success: false, 
+            message: "Failed to retrieve firms . Please try again later.", 
+            error: error.message 
+        });
+    }
+};
+
+
+
+// Create a new firms 
+exports.createFirmsApi = async (req, res) => {
+    try {
+        // Extract firms  data from request body
+        // const { firmsName } = req.body; 
+     
+
+        // Prepare the resolved data
+        const resolvedData = { 
+            firmId:uuidv4().replace(/-/g, ''),
+            firmName: "Creelify", 
+            address: "Near Church Daurala Meerut",
+            pincode:"250221",
+            GSTNumber:"27ABCDE1234F1Z5",
+            accountNumber:"33916951373",
+            bankName:"State bank Of India",
+            IFSCcode:"SBIN0010652",
+            productProduced: "Coal",
+            quantity:"10",
+
+        };
+
+        // Create a new firms 
+        const newFirms = await MasterFirmModel.create(resolvedData);
+
+        // Log successful firms   creation
+        console.log("Created new firms successfully:", newFirms);
+
+        return res.status(201).send({
+            success: true,
+            message: "firms created successfully.",
+            data: newFirms,
+        });
+    } catch (error) {
+        console.error("Error creating firms :", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to create firms . Please try again later.",
+            error: error.message, 
+        });
+    }
+};
+
+// Delete an firm by ID
+exports.deleteFirmApi = async (req, res) => {
+    try {
+        // Extract firm ID from request parameters
+        const { id } = req.params;
+
+        // Check if the firm exists before attempting to delete
+        const firm = await MasterFirmModel.findByPk(id);
+        if (!firm) {
+            return res.status(404).send({
+                success: false,
+                message: "Firm not found.",
+            });
+        }
+
+        // Delete the firm
+        await firm.destroy();
+
+        // Log successful firm deletion
+        console.log("Deleted firm successfully:", firm);
+
+        return res.status(200).send({
+            success: true,
+            message: "Firm deleted successfully.",
+        });
+    } catch (error) {
+        console.error("Error deleting firm:", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to delete firm. Please try again later.",
+            error: error.message,
+        });
     }
 };

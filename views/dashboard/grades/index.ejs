@@ -8,54 +8,45 @@
   <!-- Main content -->
   <div class="content-wrapper">
     <!-- Main navbar -->
-	<%- include('../../component/dashboard/navbar.ejs') %>
+    <%- include('../../component/dashboard/navbar.ejs') %>
     <!-- /main navbar -->
 
     <!-- Inner content -->
     <div class="content-inner">
-     
 
-      <!-- Content area -->
+      <!-- Content grade -->
       <div class="content">
         <!-- Nested object data -->
         <div class="card">
           <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">All Grades </h5>
-                <!-- <button class="btn btn-light">Add Customer</button> -->
-                <!-- Button to trigger modal -->
-                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#add-grade-model">Add Grade<i class="ph ph-user ms-2"></i></button>
+              <h5 class="mb-0"><%= title %></h5>
+              <!-- Button to trigger modal -->
+              <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#add-grade-model">
+                Add grade<i class="ph ph-navigation-arrow ms-2"></i>
+              </button>
             </div>
-           
-            
           </div>
+   <!-- Hidden element to pass JSON data to the JavaScript file -->
+  
+          <table class="table datatable-nested">
+            <thead>
+              <tr>
+                <th>Grade</th>
+                <th>Status</th>
 
-       
-          <!-- Hidden element to pass JSON data to the JavaScript file -->
-          <script type="application/json" id="data"> <%- JSON.stringify({ data: data.allGrades, label: "grades" }) %> </script>
-        
-          
-          
-          
-        
-            <table class="table datatable-nested ">
-              <thead>
-                <tr>
-                  <th>Grades</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-			  <tbody>
-				<!-- Data will be dynamically injected here -->
-			  </tbody>
-            </table>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data will be dynamically injected here -->
+            </tbody>
+          </table>
         
         </div>
         <!-- /nested object data -->
 
-        
       </div>
-      <!-- /content area -->
+      <!-- /content grade -->
     </div>
     <!-- /inner content -->
   </div>
@@ -64,9 +55,136 @@
 <!-- /page content -->
 
 
-
-<div id="add-grade-model" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
-    <%- include('../../model/addGradeModel.ejs') %>
+<!-- Models -->
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the Grade: <strong id="deleteGradeName"></strong> ?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<%- include('../../partials/footer') %>
+
+<!-- Toast Notification -->
+<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1055;">
+  <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Grade deleted successfully!
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+   // employees table
+   renderTable({
+  tableClassName: '.datatable-nested',
+  apiURl: '/api/grades',
+  columns: [  // Use 'columns' instead of 'column'
+    { data: "gradeType" }, // First column for the category name
+    {
+      data: null,  // Second column for the action buttons
+      className: "text-center",
+      render: function (data, type, row) {
+        return `
+          <button type="button" class="btn btn-primary btn-sm" 
+                  onclick="setData('${row.gradeId}','${row.gradeType}')">
+              <i class="ph ph-pencil"></i>
+          </button>
+          <button type="button" class="btn btn-danger btn-sm ms-2" 
+                  onclick="deleteData('${row.gradeId}','${row.gradeType}')">
+              <i class="ph ph-trash"></i>
+          </button>
+        `;
+      }
+    }
+  ]
+});
+
+
+// Main function to handle delete request
+function deleteData(id, gradeName) {
+    // Check if the ID is valid
+    if (!id) {
+        alert("Invalid ID for deletion.");
+        return;
+    }
+
+    // Show confirmation modal with the grade name
+    showDeleteConfirmationModal(gradeName, () => {
+        // Once confirmed, proceed with the AJAX call
+        $.ajax({
+            url: `/api/grade/delete/${id}`, // URL includes the ID of the item to delete
+            type: 'DELETE',
+            success: function(response) {
+                if (response.success) {
+                    // Show the success toast with the grade name
+                    showSuccessToast(`Grade "${gradeName}" deleted successfully!`);
+                    
+                    // Optionally, reload the page after success
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500); // Delay to let the toast show before reloading
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error deleting data:', error);
+                alert('Failed to delete data. Please try again.');
+            }
+        });
+    });
+}
+
+  
+// Function to show delete confirmation modal
+function showDeleteConfirmationModal(gradeName, callback) {
+    // Set the grade name inside the modal
+    document.getElementById('deleteGradeName').textContent = gradeName;
+
+    // Initialize the modal
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    
+    // Show the modal
+    deleteModal.show();
+    
+    // Attach event listener for confirmation button
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        // Invoke the callback to delete the item
+        callback();
+
+        // Close the modal after delete is confirmed
+        deleteModal.hide();
+    };
+}
+
+// Function to show success toast
+function showSuccessToast(message) {
+    // Update the toast body with the custom message
+    const toastBody = document.getElementById('successToast').querySelector('.toast-body');
+    toastBody.textContent = message;
+
+    // Initialize and show the toast
+    const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+    successToast.show();
+}
+
+
+</script>
+<%- include('../../partials/footer.ejs') %>

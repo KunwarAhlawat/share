@@ -1,129 +1,164 @@
-const { MasterAreaModel } = require('../Models/index');
-const validator = require('validator');
+const { MasterAreaModel, MasterCustomerModel  } = require('../Models/index'); ; 
+const { Op } = require('sequelize');
 
-// Helper function to validate input fields
-const validateAreaInput = (area_name, district) => {
-  if (!validator.isAlpha(area_name.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-    return 'Invalid area name';
-  }
-  if (!validator.isAlpha(district.replace(/\s/g, ''), 'en-US', { ignore: ' ' })) {
-    return 'Invalid district name';
-  }
-  return null;
-};
+// List all areas
+exports.getAreas = async (req, res) => {
+    try {
+        const customers = await MasterCustomerModel.findAll();
 
-// Create a new area
-exports.createArea = async (req, res) => {
-  console.log("req.body-createArea", req.body);
-  const { area_name, district, zone = '', state } = req.body;
+        // Log successful data retrieval
+        console.log("Fetched all customers data successfully.");
 
-  // Validate required fields
-  const validationError = validateAreaInput(area_name, district);
-  if (validationError) {
-    return res.status(400).send(validationError);
-  }
-
-  // Handle optional fields and sanitize input
-  const sanitizedData = {
-    areaName: validator.escape(area_name),
-    districtName: validator.escape(district),
-    zoneName: validator.isEmpty(zone) ? null : validator.escape(zone),
-    stateName: validator.escape(state),
-  };
-
-  try {
-    // Check if the area already exists
-    const existingArea = await MasterAreaModel.findOne({ where: { areaName: sanitizedData.areaName } });
-    if (existingArea) {
-      return res.status(409).json({ message: 'Area already exists' });
+        return res.render("dashboard/areas/index", {
+            title: "areas",
+            customers
+        });
+    } catch (error) {
+        console.error("Error fetching area data:", error);
+        return res.status(500).send({
+            message: "Failed to retrieve area data. Please try again later.",
+        });
     }
-
-    // Create the area
-    const newArea = await MasterAreaModel.create(sanitizedData);
-    return res.status(201).json({ message: 'Area created successfully', area: newArea });
-
-  } catch (error) {
-    console.error("Error in createArea:", error);
-    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
 };
 
-// Update an area by id
-exports.updateArea = async (req, res) => {
-  const id = Number(req.params.id);
-  console.log("req.id-updateArea", id);
+// List all areas (API)
+exports.getAreasApi = async (req, res) => {
+    // Debugging: Function has been called
+    console.log("Request received at getAreasApi");
 
-  const { area_name, district, zone = '', state } = req.body;
+    try {
+        // Fetch all areas from the database
+        const areas = await MasterAreaModel.findAll();
+        
+        
+        // Debugging: Log the number of areas fetched
+        console.log(`Fetched ${areas.length} areas successfully from the API.`);
 
-  // Validate required fields
-  const validationError = validateAreaInput(area_name, district);
-  if (validationError) {
-    return res.status(400).send(validationError);
-  }
+        // Send the response with the data
+        return res.status(200).json({ 
+            success: true, 
+            message: "areas retrieved successfully", 
+             data: areas,
 
-  // Sanitize the input fields
-  const sanitizedData = {
-    areaName: validator.escape(area_name),
-    districtName: validator.escape(district),
-    zoneName: validator.isEmpty(zone) ? null : validator.escape(zone),
-    stateName: validator.escape(state),
-  };
+        });
 
-  try {
-    // Update the area in the database
-    const [updated] = await MasterAreaModel.update(sanitizedData, { where: { areaId: id } });
-    if (updated) {
-      const updatedArea = await MasterAreaModel.findByPk(id);
-      return res.status(200).json({ message: 'Area updated successfully', area: updatedArea });
-    } else {
-      return res.status(404).json({ message: 'Area not found' });
+    } catch (error) {
+        // Error handling: Log the error details
+        console.error("Error occurred in getAreasApi:", error);
+
+        // Send error response
+        return res.status(500).json({ 
+            success: false, 
+            message: "Failed to retrieve areas. Please try again later.", 
+            error: error.message 
+        });
     }
-  } catch (error) {
-    console.error("Error in updateArea:", error);
-    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
 };
 
-// Delete an area by id
-exports.deleteArea = async (req, res) => {
-  const id = Number(req.params.id);
-  console.log("req.id-deleteArea", id);
 
-  try {
-    const deleted = await MasterAreaModel.destroy({ where: { areaId: id } });
-    if (deleted) {
-      return res.status(204).send(); // No content
-    } else {
-      return res.status(404).json({ message: 'Area not found' });
+
+// Controller Function: Create a new area
+exports.createAreaApi = async (req, res) => {
+    console.log("CreateAreaApi is requested", req.body); 
+
+    try {
+  
+        const { area_name, area_district, area_zone, state, customer_ids } = req.body; 
+
+        // Check if the area with the same name or zone already exists
+        const foundAreaOrZone = await MasterAreaModel.findOne({
+            where: {
+                [Op.or]: [
+                    { areaName: area_name },
+                    { zoneName: area_zone }
+                ]
+            }
+        });
+
+        // If found, return an error response
+        if (foundAreaOrZone) {
+            // const errorMessage = foundAreaOrZone.areaName === area_name 
+            //     ? "Area with the same name already exists." 
+            //     : "Zone with the same name already exists.";
+
+            const errorMessage = foundAreaOrZone.areaName === area_name 
+                ? "area-found"
+                : "zone-found";
+            return res.status(400).send({
+                success: false,
+                message: errorMessage,
+            });
+        }
+
+        // Prepare the resolved data for insertion
+        const resolvedData = {
+            areaName: area_name,
+            districtName: area_district,
+            zoneName: area_zone,
+            stateName: state
+        };
+
+        // Create the new area
+        const newArea = await MasterAreaModel.create(resolvedData);
+
+        // Check if customers are provided and associate them with the area
+        if (customer_ids && customer_ids.length > 0) {
+            await newArea.setCustomers(customer_ids); 
+        }
+
+        // Log successful area creation
+        console.log("Created new area successfully:", newArea);
+
+        return res.status(201).send({
+            success: true,
+            message: "Area created successfully.",
+            data: newArea,
+        });
+    } catch (error) {
+        console.error("Error creating area:", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to create area. Please try again later.",
+            error: error.message,
+        });
     }
-  } catch (error) {
-    console.error("Error in deleteArea:", error);
-    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
 };
 
-// List all areas and render to the dashboard
-exports.getAllArea = async (req, res) => {
-  try {
-    const areas = await MasterAreaModel.findAll();
-    res.render("dashboard/areas/index", {
-      title: "All Area",
-      areas: areas,
-    });
-  } catch (error) {
-    console.error("Error in getAllArea:", error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
-};
 
-// Get all areas for DataTable API
-exports.getAllAreaApi = async (req, res) => {
-  try {
-    const areas = await MasterAreaModel.findAll();
-    console.log("Fetched all area data for API.");
-    return res.json({ data: areas });
-  } catch (error) {
-    console.error("Error in getAllAreaApi:", error);
-    return res.status(500).json({ message: 'Failed to retrieve areas for API. Please try again later.', error: error.message });
-  }
+
+
+
+// Delete an area by ID
+exports.deleteAreaApi = async (req, res) => {
+    try {
+        // Extract area ID from request parameters
+        const { id } = req.params;
+
+        // Check if the area exists before attempting to delete
+        const area = await MasterAreaModel.findByPk(Number(id));
+        if (!area) {
+            return res.status(404).send({
+                success: false,
+                message: "Area not found.",
+            });
+        }
+
+        // Delete the area
+        await area.destroy();
+
+        // Log successful area deletion
+        console.log("Deleted area successfully:", area);
+
+        return res.status(200).send({
+            success: true,
+            message: "Area deleted successfully.",
+        });
+    } catch (error) {
+        console.error("Error deleting area:", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to delete area. Please try again later.",
+            error: error.message,
+        });
+    }
 };

@@ -52,3 +52,4 @@ exports.vendors = (req, res) => {
 exports.distribution = (req, res) => {
     renderPage(res, 'distribution', 'Distribution');
 };
+
