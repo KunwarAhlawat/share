@@ -34,21 +34,21 @@ module.exports = function(sequelize, DataTypes) {
         }
       }
     },
-    productGroup: {
-      type: DataTypes.STRING(50), // Group or category to which the product belongs
-      allowNull: true, // Allow null values if the group is not specified
-      comment: "Group or category of the product",
+    productGroupId: {
+      type: DataTypes.INTEGER, // Integer type for product group ID
+      allowNull: true, // Ensure product group ID is not null
+      comment: "Unique identifier for the product group",
+      references: {
+        model: 'master_product_groups',
+        key: 'productGroupId'
+      },
       validate: {
-        is: {
-          args: /^[a-zA-Z\s]*$/, // Product group can only contain letters and spaces
-          msg: "Product group can only contain letters and spaces."
-        },
-        len: {
-          args: [3, 50], // Product group name should be between 3 and 50 characters
-          msg: "Product group must be between 3 and 50 characters."
+        isInt: {
+          msg: "Grade ID must be an integer."
         }
       }
-    }
+    },
+
   }, {
     sequelize,
     tableName: 'master_products', // Database table name

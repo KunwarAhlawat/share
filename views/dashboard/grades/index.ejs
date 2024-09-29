@@ -33,6 +33,7 @@
             <thead>
               <tr>
                 <th>Grade</th>
+                <th>Customers</th>
                 <th>Status</th>
 
               </tr>
@@ -55,136 +56,254 @@
 <!-- /page content -->
 
 
+
+
 <!-- Models -->
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+<!-- Add Grade Modal -->
+<div id="add-grade-model" class="modal fade" tabindex="-1" aria-labelledby="addGradeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-full">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+        <h5 class="modal-title" id="addGradeLabel">Add Grade</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to delete the Grade: <strong id="deleteGradeName"></strong> ?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+        <form id="add-grade-form">
+          <!-- Grade Basic Information -->
+          <div class="form-section mb-4">
+            <div class="row">
+              <!-- Grade Name -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="grade_name" class="form-label">Grade*</label>
+                  <input type="text" id="grade_name" class="form-control" name="grade_name" minlength="4"
+                    maxlength="20" pattern="^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$" required>
+                  <small class="form-text text-muted">As per official documents</small>
+                  <div id="grade_name_error" class="invalid-feedback">Grade with the same name already exists.</div>
+                </div>
+              </div>
+
+              <!-- Customer Selection -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Select Customer</label>
+                  <button type="button" class="btn btn-link">Add New Customer</button>
+                  <select class="form-control multiselect" multiple="multiple" name="customer_ids"
+                    data-enable-filtering="true" data-enable-case-insensitive-filtering="true" >
+                    <% customers.forEach(function(item) { %>
+                      <option value="<%= item.customerId %>">
+                        <%= item.customerName %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the applicable customer(s)</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Submission -->
+          <div class="mb-4">
+            <button type="submit" class="btn btn-success">Add Grade</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </div>
 
-
-<!-- Toast Notification -->
-<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1055;">
-  <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body">
-        Grade deleted successfully!
+<!-- Add Grade Modal -->
+<div id="edit-grade-model" class="modal fade" tabindex="-1" aria-labelledby="addGradeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-full">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addGradeLabel">Edit Grade</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      <div class="modal-body">
+        <form id="edit-grade-form">
+          <!-- Grade Basic Information -->
+          <div class="form-section mb-4">
+            <div class="row">
+              <!-- Grade Name -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="edit_grade_name" class="form-label">Grade*</label>
+                  <input type="text" id="edit_grade_name" class="form-control" name="edit_grade_name" minlength="4"
+                    maxlength="20" pattern="^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$" required>
+                  <small class="form-text text-muted">As per official documents</small>
+                  <div id="grade_name_error" class="invalid-feedback">Grade with the same name already exists.</div>
+                </div>
+              </div>
+
+              <!-- Customer Selection -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Select Customer</label>
+                  <button type="button" class="btn btn-link">Add New Customer</button>
+                  <select id="edit_customer_ids" class="form-control multiselect" multiple="multiple" name="edit_customer_ids"
+                    data-enable-filtering="true" data-enable-case-insensitive-filtering="true" >
+                    <% customers.forEach(function(item) { %>
+                      <option value="<%= item.customerId %>">
+                        <%= item.customerName %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the applicable customer(s)</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Submission -->
+          <div class="mb-4">
+            <button type="submit" class="btn btn-success">Add Grade</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>
+
 
 
 
 <script>
-   // employees table
-   renderTable({
-  tableClassName: '.datatable-nested',
-  apiURl: '/api/grades',
-  columns: [  // Use 'columns' instead of 'column'
-    { data: "gradeType" }, // First column for the category name
-    {
-      data: null,  // Second column for the action buttons
-      className: "text-center",
-      render: function (data, type, row) {
-        return `
-          <button type="button" class="btn btn-primary btn-sm" 
-                  onclick="setData('${row.gradeId}','${row.gradeType}')">
-              <i class="ph ph-pencil"></i>
-          </button>
-          <button type="button" class="btn btn-danger btn-sm ms-2" 
-                  onclick="deleteData('${row.gradeId}','${row.gradeType}')">
-              <i class="ph ph-trash"></i>
-          </button>
-        `;
+
+
+
+  // Function to render area table
+  function renderAreaTable() {
+      renderTable({
+          tableClassName: '.datatable-nested', 
+          apiURl: '/api/grades', 
+          columns: [
+              { data: "gradeType" },
+              {
+                  data: "customers", 
+                  render: function (data, type, row) {
+                      if (Array.isArray(data) && data.length > 0) {
+                          // Join customer names into a single string
+                          
+                          return data.map(customer => customer.customerName).join(', ');
+                      } else {
+                          return 'No Customers';
+                      }
+                  }
+              },
+              {
+                  data: null,
+                  className: "text-center",
+                  render: function (data, type, row) {
+                      return `
+                      <button type="button" class="btn btn-primary btn-sm" 
+                              onclick="setData('${row.gradeId}','${row.gradeType}')">
+                          <i class="ph ph-pencil"></i>
+                      </button>
+                      <button type="button" class="btn btn-danger btn-sm ms-2" 
+                              onclick="deleteData('${row.gradeId}','${row.gradeType}')">
+                          <i class="ph ph-trash"></i>
+                      </button>
+                  `;
+                  }
+              }
+          ]
+      });
+  }
+  
+  // Main function to handle delete request
+  function deleteData(id, gradeName) {
+      if (!id) {
+          alert("Invalid ID for deletion.");
+          return;
       }
-    }
-  ]
-});
+  
+      // Show confirmation modal with the area name
+      showDeleteConfirmationModal(gradeName, () => {
+          ajaxRequest(`/api/grade/delete/${id}`, 'DELETE', null, function(response) {
+              if (response.success) {
+                  showSuccessToast(`Area "${gradeName}" deleted successfully!`);
+                  setTimeout(() => location.reload(), 1500);
+              } else {
+                  alert('Error: ' + response.message);
+              }
+          }, function(xhr) {
+              console.error('Error deleting data:', xhr);
+              alert('Failed to delete data. Please try again.');
+          });
+      });
+  }
+  
+  // Function to populate the area form
+  function populateAreaForm(id) {
+      const updateModel = new bootstrap.Modal(document.getElementById('edit-grade-model'));
+      updateModel.show();
+  
+      ajaxRequest(`/api/grade/${id}`, 'GET', null, function(response) {
+          const grade = response.data;
+          $('#edit_grade_name').val(grade.gradeType);
+ 
+          const customerIds = grade.customers.map(customer => customer.customerId);
+          $('#edit_customer_ids').val(customerIds);
+          $('#edit_customer_ids').multiselect('refresh');
+      }, function(xhr) {
+          console.error('Error fetching area details:', xhr);
+      });
+  }
+  
+// Function to handle the edit request and form submission
 
+function setData(id, gradeName) {
+    populateAreaForm(id); 
 
-// Main function to handle delete request
-function deleteData(id, gradeName) {
-    // Check if the ID is valid
-    if (!id) {
-        alert("Invalid ID for deletion.");
-        return;
-    }
-
-    // Show confirmation modal with the grade name
-    showDeleteConfirmationModal(gradeName, () => {
-        // Once confirmed, proceed with the AJAX call
-        $.ajax({
-            url: `/api/grade/delete/${id}`, // URL includes the ID of the item to delete
-            type: 'DELETE',
-            success: function(response) {
-                if (response.success) {
-                    // Show the success toast with the grade name
-                    showSuccessToast(`Grade "${gradeName}" deleted successfully!`);
-                    
-                    // Optionally, reload the page after success
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500); // Delay to let the toast show before reloading
-                } else {
-                    alert('Error: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error deleting data:', error);
-                alert('Failed to delete data. Please try again.');
-            }
+    // Use .off() to remove any previous event listeners to avoid multiple bindings
+    $('#edit-grade-form').off('submit').on('submit', function (e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        ajaxRequest(`/api/grade/update/${id}`, 'PUT', formData, function(response) {
+            $('#edit-grade-model').modal('hide');
+            showSuccessToast(`Grade "${formData.get('edit_grade_name')}" updated successfully!`);
+            setTimeout(() => location.reload(), 1500);
+        }, function(xhr) {
+            console.error('Error:', xhr);
+            const response = JSON.parse(xhr.responseText);
+            handleErrorResponse(response);
         });
     });
 }
 
   
-// Function to show delete confirmation modal
-function showDeleteConfirmationModal(gradeName, callback) {
-    // Set the grade name inside the modal
-    document.getElementById('deleteGradeName').textContent = gradeName;
-
-    // Initialize the modal
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-    
-    // Show the modal
-    deleteModal.show();
-    
-    // Attach event listener for confirmation button
-    document.getElementById('confirmDeleteBtn').onclick = function() {
-        // Invoke the callback to delete the item
-        callback();
-
-        // Close the modal after delete is confirmed
-        deleteModal.hide();
-    };
-}
-
-// Function to show success toast
-function showSuccessToast(message) {
-    // Update the toast body with the custom message
-    const toastBody = document.getElementById('successToast').querySelector('.toast-body');
-    toastBody.textContent = message;
-
-    // Initialize and show the toast
-    const successToast = new bootstrap.Toast(document.getElementById('successToast'));
-    successToast.show();
-}
-
-
-</script>
+  // Function to handle adding a new area
+  function addGrade() {
+      $('#add-grade-form').on('submit', function (e) {
+          e.preventDefault();  
+          const formData = new FormData(this);
+  
+          ajaxRequest('/api/grade/create', 'POST', formData, function(response) {
+              $('#add-grade-model').modal('hide');
+              showSuccessToast(`Grade "${formData.get('grade_name')}" added successfully!`);
+              setTimeout(() => location.reload(), 1500);
+          }, function(xhr) {
+              console.error('Error adding Grade:', xhr);
+              const response = JSON.parse(xhr.responseText);
+              handleErrorResponse(response);
+          });
+      });
+  }
+  
+  // Function to handle error responses
+  function handleErrorResponse(response) {
+      if (response.message === "grade-found") {
+          $('#grade_name_error').removeClass('invalid-feedback');
+      } 
+  }
+  
+  // Initialize the area table and bind add area function
+  $(document).ready(function() {
+      renderAreaTable();
+      addGrade();
+  });
+  
+  </script>
 <%- include('../../partials/footer.ejs') %>

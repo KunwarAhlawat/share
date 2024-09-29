@@ -22,7 +22,7 @@
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="mb-0"><%= title %></h5>
               <!-- Button to trigger modal -->
-              <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#add-product group-model">
+              <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#add-product-group-modal">
                 Add product group<i class="ph ph-navigation-arrow ms-2"></i>
               </button>
             </div>
@@ -33,6 +33,7 @@
             <thead>
               <tr>
                 <th>Product Groups</th>
+                <th>Products</th>
                 <th>Status</th>
 
               </tr>
@@ -56,135 +57,247 @@
 
 
 <!-- Models -->
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+<!-- Add Product Group Modal -->
+<div id="add-product-group-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-full">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+        <h5 class="modal-title">Add Product Group</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to delete the Product Group: <strong id="deleteProductGroup"></strong> ?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+        <form id="add-product-group-form">
+
+          <!-- Product Group Basic Information -->
+          <div class="form-section mb-4">
+            <div class="row">
+              <!-- Product Group Name -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="product_group_name" class="form-label">Product Group Name*</label>
+                  <input type="text" id="product_group_name" class="form-control" name="product_group_name" minlength="4"
+                    maxlength="20" pattern="^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$" required>
+                  <small class="form-text text-muted">Enter the product group name</small>
+                  <div id="product_group_name_error" class="invalid-feedback">Product group with the same name already exists.</div>
+                </div>
+              </div>
+
+              <!-- Product Selection -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="product_ids" class="form-label">Select Product(s)</label>
+                  <button type="button" class="btn btn-link">Add New Product</button>
+                  <select id="product_ids" class="form-control multiselect" multiple="multiple" name="product_ids[]"
+                    data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                    <% products.forEach(function(item) { %>
+                      <option value="<%= item.productId %>">
+                        <%= item.productName %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the product(s) to associate with this group</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Submission -->
+          <div class="mb-4">
+            <button type="submit" class="btn btn-success">Add Product Group</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </div>
 
-
-<!-- Toast Notification -->
-<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1055;">
-  <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body">
-        Product Group deleted successfully!
+<!-- Edit Product Group Modal -->
+<div id="edit-product-group-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-full">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Product Group</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      <div class="modal-body">
+        <form id="edit-product-group-form">
+
+          <!-- Product Group Basic Information -->
+          <div class="form-section mb-4">
+            <div class="row">
+              <!-- Product Group Name -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="edit_product_group_name" class="form-label">Product Group Name*</label>
+                  <input type="text" id="edit_product_group_name" class="form-control" name="edit_product_group_name" minlength="4"
+                    maxlength="20" pattern="^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$" required>
+                  <small class="form-text text-muted">Enter the product group name</small>
+                  <div id="product_group_name_error" class="invalid-feedback">Product group with the same name already exists.</div>
+                </div>
+              </div>
+
+              <!-- Product Selection -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="edit_product_ids" class="form-label">Select Product(s)</label>
+                  <button type="button" class="btn btn-link">Add New Product</button>
+                  <select id="edit_product_ids" class="form-control multiselect" multiple="multiple" name="edit_product_ids"
+                    data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                    <% products.forEach(function(item) { %>
+                      <option value="<%= item.productId %>">
+                        <%= item.productName %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the product(s) to associate with this group</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Submission -->
+          <div class="mb-4">
+            <button type="submit" class="btn btn-success">Add Product Group</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>
-
-
 <script>
-   // employees table
-   renderTable({
-  tableClassName: '.datatable-nested',
-  apiURl: '/api/product-groups',
-  columns: [  // Use 'columns' instead of 'column'
-    { data: "productGroupName" }, // First column for the category name
-    {
-      data: null,  // Second column for the action buttons
-      className: "text-center",
-      render: function (data, type, row) {
-        return `
-          <button type="button" class="btn btn-primary btn-sm" 
-                  onclick="setData('${row.productGroupId}','${row.productGroupName}')">
-              <i class="ph ph-pencil"></i>
-          </button>
-          <button type="button" class="btn btn-danger btn-sm ms-2" 
-                  onclick="deleteData('${row.productGroupId}','${row.productGroupName}')">
-              <i class="ph ph-trash"></i>
-          </button>
-        `;
-      }
+
+// Function to render area table
+function renderAreaTable() {
+    renderTable({
+        tableClassName: '.datatable-nested', 
+        apiURl: '/api/product-groups', 
+        columns: [
+            { data: "productGroupName" },
+            {
+                data: "products", 
+                render: function (data, type, row) {
+                    if (Array.isArray(data) && data.length > 0) {
+                        // Join customer names into a single string
+                        
+                        return data.map(product => product.productName).join(', ');
+                    } else {
+                        return 'No Product';
+                    }
+                }
+            },
+            {
+                data: null,
+                className: "text-center",
+                render: function (data, type, row) {
+                    return `
+                    <button type="button" class="btn btn-primary btn-sm" 
+                            onclick="setData('${row.productGroupId}','${row.productGroupName}')">
+                        <i class="ph ph-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm ms-2" 
+                            onclick="deleteData('${row.productGroupId}','${row.productGroupName}')">
+                        <i class="ph ph-trash"></i>
+                    </button>
+                `;
+                }
+            }
+        ]
+    });
+}
+
+// Function to populate the area form
+function populateAreaForm(id) {
+    const updateModel = new bootstrap.Modal(document.getElementById('edit-product-group-modal'));
+    updateModel.show();
+
+    ajaxRequest(`/api/product-group/${id}`, 'GET', null, function(response) {
+        const productGroup = response.data;
+        $('#edit_product_group_name').val(productGroup.productGroupName);
+
+        const productIds = productGroup.products.map(product => product.productId);
+        $('#edit_product_ids').val(productIds);
+        $('#edit_product_ids').multiselect('refresh');
+    }, function(xhr) {
+        console.error('Error fetching area details:', xhr);
+    });
+}
+
+// Function to handle the edit request and form submission
+function setData(id, productGroupName) {
+    populateAreaForm(id); 
+
+    // Use .off() to remove any previous event listeners to avoid multiple bindings
+    $('#edit-product-group-form').off('submit').on('submit', function (e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        ajaxRequest(`/api/product-group/update/${id}`, 'PUT', formData, function(response) {
+            $('#edit-product-group-modal').modal('hide');
+            showSuccessToast(`Product Group "${formData.get('edit_product_group_name')}" updated successfully!`);
+            setTimeout(() => location.reload(), 1500);
+        }, function(xhr) {
+            console.error('Error:', xhr);
+            const response = JSON.parse(xhr.responseText);
+            handleErrorResponse(response);
+        });
+    });
+}
+
+
+// Function to handle adding a new area
+function addProductGroup() {
+    $('#add-product-group-form').on('submit', function (e) {
+        e.preventDefault();  
+        const formData = new FormData(this);
+
+        ajaxRequest('/api/product-group/create', 'POST', formData, function(response) {
+            $('#add-product-group-modal').modal('hide');
+            showSuccessToast(`Product Group "${formData.get('product_group_name')}" added successfully!`);
+            setTimeout(() => location.reload(), 1500);
+        }, function(xhr) {
+            console.error('Error adding area:', xhr);
+            const response = JSON.parse(xhr.responseText);
+            handleErrorResponse(response);
+        });
+    });
+}
+
+// Function to handle error responses
+function handleErrorResponse(response) {
+  $('#product_group_name_error').addClass('invalid-feedback');
+    if (response.message === "product-group-found") {
+        $('#product_group_name_error').removeClass('invalid-feedback');
     }
-  ]
-});
+}
 
 // Main function to handle delete request
 function deleteData(id, productGroupName) {
-    // Check if the ID is valid
     if (!id) {
         alert("Invalid ID for deletion.");
         return;
     }
 
-    // Show confirmation modal with the product group name
+    // Show confirmation modal with the area name
     showDeleteConfirmationModal(productGroupName, () => {
-        // Once confirmed, proceed with the AJAX call
-        $.ajax({
-            url: `/api/product-group/delete/${id}`, // URL includes the ID of the item to delete
-            type: 'DELETE',
-            success: function(response) {
-                if (response.success) {
-                    // Show the success toast with the product group name
-                    showSuccessToast(`Product Group "${productGroupName}" deleted successfully!`);
-                    
-                    // Optionally, reload the page after success
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500); // Delay to let the toast show before reloading
-                } else {
-                    alert('Error: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error deleting data:', error);
-                alert('Failed to delete data. Please try again.');
+        ajaxRequest(`/api/product-group/delete/${id}`, 'DELETE', null, function(response) {
+            if (response.success) {
+                showSuccessToast(`Product Group "${productGroupName}" deleted successfully!`);
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                alert('Error: ' + response.message);
             }
+        }, function(xhr) {
+            console.error('Error deleting data:', xhr);
+            alert('Failed to delete data. Please try again.');
         });
     });
 }
 
-  
-// Function to show delete confirmation modal
-function showDeleteConfirmationModal(productGroupName, callback) {
-    // Set the product group name inside the modal
-    document.getElementById('deleteProductGroup').textContent = productGroupName;
 
-    // Initialize the modal
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-    
-    // Show the modal
-    deleteModal.show();
-    
-    // Attach event listener for confirmation button
-    document.getElementById('confirmDeleteBtn').onclick = function() {
-        // Invoke the callback to delete the item
-        callback();
-
-        // Close the modal after delete is confirmed
-        deleteModal.hide();
-    };
-}
-
-// Function to show success toast
-function showSuccessToast(message) {
-    // Update the toast body with the custom message
-    const toastBody = document.getElementById('successToast').querySelector('.toast-body');
-    toastBody.textContent = message;
-
-    // Initialize and show the toast
-    const successToast = new bootstrap.Toast(document.getElementById('successToast'));
-    successToast.show();
-}
-
-
-
-
+// Initialize the area table and bind add area function
+$(document).ready(function() {
+    renderAreaTable();
+   addProductGroup();
+});
 </script>
 <%- include('../../partials/footer.ejs') %>

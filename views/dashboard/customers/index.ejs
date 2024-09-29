@@ -8,7 +8,7 @@
       <!-- Main content -->
       <div class="content-wrapper">
         <!-- Main navbar -->
-        <%- include('../../component/dashboard/navbar.ejs',{user:user}) %>
+        <%- include('../../component/dashboard/navbar.ejs') %>
           <!-- /main navbar -->
 
           <!-- Inner content -->
@@ -39,7 +39,8 @@
                       <th>Customer Code</th>
                       <th>Customer Name</th>
                       <th>Categories</th>
-                      <th>customer</th>
+                      <th>Products</th>
+                      <th>Area</th>
                       <th>Firms</th>
                       <th>Grade</th>
                       <th>Status</th>
@@ -80,7 +81,7 @@
     <div class="modal-dialog modal-full">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Edit Customer</h5>
+          <h5 class="modal-title">Add Customer</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -95,7 +96,8 @@
                   <div class="mb-3">
                     <label for="customer_code" class="form-label">Customer Code</label>
                     <input type="text" id="customer_code" class="form-control" name="customer_code" minlength="4"
-                      maxlength="20" pattern="[A-Za-z0-9]+"  placeholder="Auto-generated code or type manually">
+                      maxlength="20" pattern="^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$"
+                      placeholder="Auto-generated code or type manually">
                     <small class="form-text text-muted">Click "Generate Now" to create a new customer code, or type it
                       manually.</small>
                   </div>
@@ -120,7 +122,8 @@
                   <div class="mb-3">
                     <label for="customer_name" class="form-label">Customer Name</label>
                     <input type="text" id="customer_name" class="form-control" name="customer_name" minlength="4"
-                      maxlength="20" pattern="[A-Za-z\s'-]+" >
+                      maxlength="20" pattern="^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$"
+                      >
                     <small class="form-text text-muted">As per official documents</small>
                   </div>
                 </div>
@@ -129,7 +132,7 @@
                 <div class="col-md-4">
                   <div class="mb-3">
                     <label for="status" class="form-label">Status</label>
-                    <select class="form-control"  name="status">
+                    <select if="status" class="form-control"  name="status">
                       <option value="" disabled selected>Select Status</option>
                       <option value="VERIFIED">VERIFIED</option>
                       <option value="UNVERIFIED">UNVERIFIED</option>
@@ -172,7 +175,8 @@
                   <div class="mb-3">
                     <label for="customer_pincode" class="form-label">Pincode</label>
                     <input type="number" id="customer_pincode" class="form-control" name="customer_pincode"
-                      minlength="4" maxlength="20" pattern="[A-Za-z\s'-]+">
+                      minlength="4" maxlength="20" pattern="^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$"
+                      >
                     <small class="form-text text-muted">As per official documents</small>
                   </div>
                 </div>
@@ -181,11 +185,11 @@
 
             <div class="row">
               <!-- Customer Grade -->
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Select Grade</label><button type="button" class="btn btn-link">Add New
                     Grade</button>
-                  <select class="form-control multiselect" multiple="multiple" name="customer_grades"
+                  <select id="customer_grade" class="form-control multiselect" multiple="multiple" name="customer_grade"
                     data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
                     <% grades.forEach(function(item) { %>
                       <option value="<%= item.gradeId %>">
@@ -198,11 +202,11 @@
               </div>
 
               <!-- Customer area  -->
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="mb-3">
                   <label class="form-label">Select areas</label><button type="button" class="btn btn-link">Add New
                     Area</button>
-                  <select class="form-control multiselect" multiple="multiple" name="customer_areas"
+                  <select id="customer_area" class="form-control multiselect" multiple="multiple" name="customer_area"
                     data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
                     <% areas.forEach(function(item) { %>
                       <option value="<%= item.areaId %>">
@@ -213,7 +217,25 @@
                   <small class="form-text text-muted">Choose one or more area</small>
                 </div>
               </div>
+              <!-- Customer categories  -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Select Categories</label><button type="button" class="btn btn-link">Add New
+                    Grade</button>
+                  <select id="customer_categories" class="form-control multiselect" multiple="multiple" name="customer_categories"
+                    data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                    <% categories.forEach(function(item) { %>
+                      <option value="<%= item.categoryId %>">
+                        <%= item.categoryName %>
+                      </option>
+                      <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the applicable categories</small>
+                </div>
+              </div>
             </div>
+
+          
 
             <div class="row">
               <!-- Customer products -->
@@ -221,10 +243,10 @@
                 <div class="mb-3">
                   <label class="form-label">Select product</label><button type="button" class="btn btn-link">Add New
                     Product</button>
-                  <select class="form-control multiselect" multiple="multiple" name="customer_products"
+                  <select id="customer_products" class="form-control multiselect" multiple="multiple" name="customer_products"
                     data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
                     <% products.forEach(function(item) { %>
-                      <option value="<%= item.productGroup %>">
+                      <option value="<%= item.productId %>">
                         <%= item.productName %>
                       </option>
                       <% }) %>
@@ -238,7 +260,7 @@
                 <div class="mb-3">
                   <label class="form-label">Select firms</label><button type="button" class="btn btn-link">Add New
                     Firm</button>
-                  <select class="form-control multiselect" multiple="multiple" name="customer_firms"
+                  <select id="customer_firms" class="form-control multiselect" multiple="multiple" name="customer_firms"
                     data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
                     <% firms.forEach(function(item) { %>
                       <option value="<%= item.firmId %>">
@@ -283,8 +305,8 @@
                 <!-- Reference 1 Name -->
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="reference_1_name" class="form-label">Reference 1 Name</label>
-                    <input type="text" id="reference_1_name" class="form-control" name="reference_1_name" >
+                    <label for="customer_reference_1_name" class="form-label">Reference 1 Name</label>
+                    <input type="text" id="customer_reference_1_name" class="form-control" name="customer_reference_1_name" >
                     <small class="form-text text-muted">First reference name</small>
                   </div>
                 </div>
@@ -292,8 +314,8 @@
                 <!-- Reference 1 Contact -->
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="reference_1_contact" class="form-label">Reference 1 Contact</label>
-                    <input type="text" id="reference_1_contact" class="form-control" name="reference_1_contact"
+                    <label for="customer_reference_1_contact" class="form-label">Reference 1 Contact</label>
+                    <input type="text" id="customer_reference_1_contact" class="form-control" name="customer_reference_1_contact"
                       >
                     <small class="form-text text-muted">First reference contact</small>
                   </div>
@@ -304,8 +326,8 @@
                 <!-- Reference 2 Name -->
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="reference_2_name" class="form-label">Reference 2 Name</label>
-                    <input type="text" id="reference_2_name" class="form-control" name="reference_2_name" >
+                    <label for="customer_reference_2_name" class="form-label">Reference 2 Name</label>
+                    <input type="text" id="customer_reference_2_name" class="form-control" name="customer_reference_2_name" >
                     <small class="form-text text-muted">Second reference name</small>
                   </div>
                 </div>
@@ -313,8 +335,8 @@
                 <!-- Reference 2 Contact -->
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="reference_2_contact" class="form-label">Reference 2 Contact</label>
-                    <input type="text" id="reference_2_contact" class="form-control" name="reference_2_contact"
+                    <label for="customer_reference_2_contact" class="form-label">Reference 2 Contact</label>
+                    <input type="text" id="customer_reference_2_contact" class="form-control" name="customer_reference_2_contact"
                       >
                     <small class="form-text text-muted">Second reference contact</small>
                   </div>
@@ -330,8 +352,8 @@
                   <!-- Contact Name -->
                   <div class="col-md-3">
                     <div class="mb-3">
-                      <label for="contact_name" class="form-label">Contact Name</label>
-                      <input type="text" class="form-control" name="contact_name" >
+                      <label for="customer_contact_name" class="form-label">Contact Name</label>
+                      <input id="customer_contact_name" type="text" class="form-control" name="customer_contact_name" >
                       <small class="form-text text-muted">contact full name</small>
                     </div>
                   </div>
@@ -339,8 +361,8 @@
                   <!-- Contact Mobile -->
                   <div class="col-md-2">
                     <div class="mb-3">
-                      <label for="contact_mobile" class="form-label">Contact Mobile</label>
-                      <input type="text" class="form-control" name="contact_mobile" >
+                      <label for="customer_contact_mobile" class="form-label">Contact Mobile</label>
+                      <input id="customer_contact_mobile" type="text" class="form-control" name="customer_contact_mobile" >
                       <small class="form-text text-muted">Contact mobile number</small>
                     </div>
                   </div>
@@ -348,18 +370,18 @@
                   <!-- Contact Email -->
                   <div class="col-md-3 ">
                     <div class="mb-3">
-                      <label for="contact_email" class="form-label">Contact Email</label>
-                      <input type="email" class="form-control" name="contact_email" >
+                      <label for="customer_contact_email" class="form-label">Contact Email</label>
+                      <input id="customer_contact_email" type="email" class="form-control" name="customer_contact_email" >
                       <small class="form-text text-muted">contact email address</small>
                     </div>
                   </div>
 
-                  <!-- Contact Address -->
+                  <!-- Contact Designation -->
                   <div class="col-md-3 ">
                     <div class="mb-3">
-                      <label for="contact_address" class="form-label">Contact Address</label>
-                      <input type="text" class="form-control" name="contact_address">
-                      <small class="form-text text-muted">contact address</small>
+                      <label for="customer_contact_designation" class="form-label">Contact Designation</label>
+                      <input id="customer_contact_designation" type="text" class="form-control" name="customer_contact_designation">
+                      <small class="form-text text-muted">contact designation</small>
                     </div>
                   </div>
 
@@ -386,290 +408,578 @@
     </div>
   </div>
 
-  <!-- Delete Confirmation Modal -->
-  <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to delete the customer: <strong id="deleteCustomerName"></strong> ?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+    <!-- add Customer Modal -->
+    <div id="edit-customer-model" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-full">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Customer</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="add-customer-form" >
+              <div class="form-section mb-4">
+                <!-- Generate Customer Code -->
+                <h4 class="mb-4 text-primary">Generate Customer Code</h4>
+  
+                <div class="row align-items-center">
+                  <!-- Customer Code Input -->
+                  <div class="col-md-8">
+                    <div class="mb-3">
+                      <label for="customer_code" class="form-label">Customer Code</label>
+                      <input type="text" id="customer_code" class="form-control" name="customer_code" minlength="4"
+                        maxlength="20" pattern="^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$"
+                        placeholder="Auto-generated code or type manually">
+                      <small class="form-text text-muted">Click "Generate Now" to create a new customer code, or type it
+                        manually.</small>
+                    </div>
+                  </div>
+  
+                  <!-- Generate Button -->
+                  <div class="col-md-4">
+                    <div class="d-grid mb-3">
+                      <button type="button" class="btn btn-primary" onclick="customerCodeGenerator()">Generate
+                        Now</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Customer Basic Information -->
+              <div class="form-section mb-4">
+                <h4 class="mb-3">Basic Information</h4>
+                <div class="row">
+                  <!-- Customer Name -->
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="customer_name" class="form-label">Customer Name</label>
+                      <input type="text" id="customer_name" class="form-control" name="customer_name" minlength="4"
+                        maxlength="20" pattern="^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$"
+                        >
+                      <small class="form-text text-muted">As per official documents</small>
+                    </div>
+                  </div>
+  
+                  <!-- Status -->
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="status" class="form-label">Status</label>
+                      <select if="status" class="form-control"  name="status">
+                        <option value="" disabled selected>Select Status</option>
+                        <option value="VERIFIED">VERIFIED</option>
+                        <option value="UNVERIFIED">UNVERIFIED</option>
+                      </select>
+                      <small class="form-text text-muted">Indicate if customer is Verified</small>
+                    </div>
+                  </div>
+  
+                  <!-- Customer Status -->
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="customer_status" class="form-label">Customer Status</label>
+                      <select class="form-control"  name="customer_status">
+                        <option value="" disabled selected>Select Customer Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="closed">Closed</option>
+                      </select>
+                      <small class="form-text text-muted">Indicate if customer is active</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Customer Address -->
+              <div class="form-section mb-4">
+                <div class="row">
+                  <!-- Customer Address -->
+                  <div class="col-md-8">
+                    <div class="mb-3">
+                      <label for="customer_address" class="form-label">Customer Address</label>
+                      <input type="text" id="customer_address" class="form-control" name="customer_address" minlength="4"
+                        maxlength="100">
+                      <small class="form-text text-muted">Official address</small>
+                    </div>
+                  </div>
+  
+                  <!-- Customer Pincode -->
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="customer_pincode" class="form-label">Pincode</label>
+                      <input type="number" id="customer_pincode" class="form-control" name="customer_pincode"
+                        minlength="4" maxlength="20" pattern="^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$"
+                        >
+                      <small class="form-text text-muted">As per official documents</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <div class="row">
+                <!-- Customer Grade -->
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label class="form-label">Select Grade</label><button type="button" class="btn btn-link">Add New
+                      Grade</button>
+                    <select id="customer_grade" class="form-control multiselect" multiple="multiple" name="customer_grade"
+                      data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                      <% grades.forEach(function(item) { %>
+                        <option value="<%= item.gradeId %>">
+                          <%= item.gradeType %>
+                        </option>
+                        <% }) %>
+                    </select>
+                    <small class="form-text text-muted">Select the applicable grade</small>
+                  </div>
+                </div>
+  
+                <!-- Customer area  -->
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label class="form-label">Select areas</label><button type="button" class="btn btn-link">Add New
+                      Area</button>
+                    <select id="customer_area" class="form-control multiselect" multiple="multiple" name="customer_area"
+                      data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                      <% areas.forEach(function(item) { %>
+                        <option value="<%= item.areaId %>">
+                          <%= item.areaName %>
+                        </option>
+                        <% }) %>
+                    </select>
+                    <small class="form-text text-muted">Choose one or more area</small>
+                  </div>
+                </div>
+                <!-- Customer categories  -->
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label class="form-label">Select Categories</label><button type="button" class="btn btn-link">Add New
+                      Grade</button>
+                    <select id="customer_categories" class="form-control multiselect" multiple="multiple" name="customer_categories"
+                      data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                      <% categories.forEach(function(item) { %>
+                        <option value="<%= item.categoryId %>">
+                          <%= item.categoryName %>
+                        </option>
+                        <% }) %>
+                    </select>
+                    <small class="form-text text-muted">Select the applicable categories</small>
+                  </div>
+                </div>
+              </div>
+  
+            
+  
+              <div class="row">
+                <!-- Customer products -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Select product</label><button type="button" class="btn btn-link">Add New
+                      Product</button>
+                    <select id="customer_products" class="form-control multiselect" multiple="multiple" name="customer_products"
+                      data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                      <% products.forEach(function(item) { %>
+                        <option value="<%= item.productId %>">
+                          <%= item.productName %>
+                        </option>
+                        <% }) %>
+                    </select>
+                    <small class="form-text text-muted">Select the applicable products</small>
+                  </div>
+                </div>
+  
+                <!-- Customer firms -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Select firms</label><button type="button" class="btn btn-link">Add New
+                      Firm</button>
+                    <select id="customer_firms" class="form-control multiselect" multiple="multiple" name="customer_firms"
+                      data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                      <% firms.forEach(function(item) { %>
+                        <option value="<%= item.firmId %>">
+                          <%= item.firmName %>
+                        </option>
+                        <% }) %>
+                    </select>
+                    <small class="form-text text-muted">Choose one or more firm</small>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Customer Credit Information -->
+              <div class="form-section mb-4">
+                <h4 class="mb-3">Credit Information</h4>
+                <div class="row">
+                  <!-- Credit -->
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="customer_credit" class="form-label">Credit</label>
+                      <input type="number" id="customer_credit" class="form-control" name="customer_credit" >
+                      <small class="form-text text-muted">Amount of credit</small>
+                    </div>
+                  </div>
+  
+                  <!-- Credit Days -->
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="customer_credit_days" class="form-label">Credit Days</label>
+                      <input type="number" id="customer_credit_days" class="form-control" name="customer_credit_days"
+                        >
+                      <small class="form-text text-muted">Number of credit days</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Customer References -->
+              <div class="form-section mb-4">
+                <h4 class="mb-3">Customer References</h4>
+                <div class="row">
+                  <!-- Reference 1 Name -->
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="customer_reference_1_name" class="form-label">Reference 1 Name</label>
+                      <input type="text" id="customer_reference_1_name" class="form-control" name="customer_reference_1_name" >
+                      <small class="form-text text-muted">First reference name</small>
+                    </div>
+                  </div>
+  
+                  <!-- Reference 1 Contact -->
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="customer_reference_1_contact" class="form-label">Reference 1 Contact</label>
+                      <input type="text" id="customer_reference_1_contact" class="form-control" name="customer_reference_1_contact"
+                        >
+                      <small class="form-text text-muted">First reference contact</small>
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="row">
+                  <!-- Reference 2 Name -->
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="customer_reference_2_name" class="form-label">Reference 2 Name</label>
+                      <input type="text" id="customer_reference_2_name" class="form-control" name="customer_reference_2_name" >
+                      <small class="form-text text-muted">Second reference name</small>
+                    </div>
+                  </div>
+  
+                  <!-- Reference 2 Contact -->
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="customer_reference_2_contact" class="form-label">Reference 2 Contact</label>
+                      <input type="text" id="customer_reference_2_contact" class="form-control" name="customer_reference_2_contact"
+                        >
+                      <small class="form-text text-muted">Second reference contact</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Customer Contact Information -->
+              <div class="form-section mb-4">
+                <h4 class="mb-3">Owner Contact Information</h4>
+                <div id="formRows">
+                  <div class="row mb-3 align-items-center">
+                    <!-- Contact Name -->
+                    <div class="col-md-3">
+                      <div class="mb-3">
+                        <label for="customer_contact_name" class="form-label">Contact Name</label>
+                        <input id="customer_contact_name" type="text" class="form-control" name="customer_contact_name" >
+                        <small class="form-text text-muted">contact full name</small>
+                      </div>
+                    </div>
+  
+                    <!-- Contact Mobile -->
+                    <div class="col-md-2">
+                      <div class="mb-3">
+                        <label for="customer_contact_mobile" class="form-label">Contact Mobile</label>
+                        <input id="customer_contact_mobile" type="text" class="form-control" name="customer_contact_mobile" >
+                        <small class="form-text text-muted">Contact mobile number</small>
+                      </div>
+                    </div>
+  
+                    <!-- Contact Email -->
+                    <div class="col-md-3 ">
+                      <div class="mb-3">
+                        <label for="customer_contact_email" class="form-label">Contact Email</label>
+                        <input id="customer_contact_email" type="email" class="form-control" name="customer_contact_email" >
+                        <small class="form-text text-muted">contact email address</small>
+                      </div>
+                    </div>
+  
+                    <!-- Contact Address -->
+                    <div class="col-md-3 ">
+                      <div class="mb-3">
+                        <label for="customer_contact_address" class="form-label">Contact Address</label>
+                        <input id="customer_contact_address" type="text" class="form-control" name="customer_contact_address">
+                        <small class="form-text text-muted">contact address</small>
+                      </div>
+                    </div>
+  
+                    <!-- Add Row Button -->
+                    <div class="col-md-1">
+                      <div class="mb-3 mt-1">
+                        <button type="button" id="addRow" class="btn btn-primary">
+                          <i class="ph ph-plus"></i> <!-- Bootstrap icon for Add -->
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Form Submission -->
+              <div class="mb-4">
+                <button type="submit" class="btn btn-success">Create Customer</button>
+              </div>
+            </form>
+  
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
 
-  <!-- Toast Notification -->
-  <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1055;">
-    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive"
-      aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body">
-          Customer deleted successfully!
-        </div>
-        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-    </div>
-  </div>
-
-
-  <script>
-    // employees table
+ <script>
+  // Function to render area table
+function renderAreaTable() {
     renderTable({
-      tableClassName: '.datatable-nested',
-      apiURl: '/api/customers',
-      columns: [
-        { data: "customerCode" },
-        { data: "customerName" },
-        { data: "customerName" },
-        { data: "customerName" },
-        { data: "customerName" },
-        { data: "customerName" },
-        { data: "status" },
-        { data: "customerStatus" },
-        { data: "address" },
-        { data: "pincode" },
-        { data: "referenceName1" },
-        { data: "reference1ContactNumber" },
-        { data: "referenceName2" },
-        { data: "reference2ContactNumber" },
-        { data: "creditLimit" },
-        { data: "creditDays" },
-        {
-          data: null,
-          className: "text-center",
-          render: function (data, type, row) {
-            return `
-                    <button type="button" class="btn btn-primary btn-sm" 
-                            onclick="setData('${row.customerId}','${row.customerName}')">
-                        <i class="ph ph-pencil"></i>
-                    </button>
-                    <button type="button" class="btn btn-danger btn-sm ms-2" 
-                            onclick="deleteData('${row.customerId}','${row.customerName}')">
-                        <i class="ph ph-trash"></i>
-                    </button>
-                `;
-          }
-        }
-      ]
+        tableClassName: '.datatable-nested', 
+        apiURl: '/api/customers', 
+        columns: [
+            { data: "customerCode" },
+            { data: "customerName" },
+            {
+                data: "categories",
+                render: function (data, type, row) {
+                    return Array.isArray(data) && data.length > 0
+                        ? data.map(category => category.categoryName).join(', ')
+                        : 'No categories';
+                }
+            },
+            {
+                data: "products",
+                render: function (data, type, row) {
+                    return Array.isArray(data) && data.length > 0
+                        ? data.map(product => product.productName).join(', ')
+                        : 'No products';
+                }
+            },
+            { 
+                data: "area.areaName", 
+                defaultContent: 'No area'  // Handling missing area
+            },
+            {
+                data: "firms",
+                render: function (data, type, row) {
+                    return Array.isArray(data) && data.length > 0
+                        ? data.map(firm => firm.firmName).join(', ')
+                        : 'No firms';
+                }
+            },
+            { 
+                data: "grade.gradeType", 
+                defaultContent: 'No grade'  // Handling missing grade
+            },
+            { data: "status" },
+            { data: "customerStatus" },
+            { data: "address" },
+            { data: "pincode" },
+            { data: "referenceName1" },
+            { data: "reference1ContactNumber" },
+            { data: "referenceName2" },
+            { data: "reference2ContactNumber" },
+            { data: "creditLimit" },
+            { data: "creditDays" },
+            {
+                data: null,
+                className: "text-center",
+                render: function (data, type, row) {
+                    return `
+                        <button type="button" class="btn btn-primary btn-sm" 
+                                onclick="setData('${row.customerId}', '${row.customerName}')">
+                            <i class="ph ph-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm ms-2" 
+                                onclick="deleteData('${row.customerId}', '${row.customerName}')">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    `;
+                }
+            }
+        ]
     });
+}
 
-    // Function to handle delete request
-    function deleteData(id, customerName) {
-      // Check if the ID is valid
-      if (!id) {
+// Function to add a new customer
+function addCustomer() {
+    // Event delegation to handle form submission
+    $(document).on('submit', '#add-customer-form', function (e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);  // Form data from the form
+        
+        // Collect all dynamic rows
+        const rows = document.querySelectorAll('#formRows .row');  // Each dynamic row inside formRows
+        const customerContacts = [];
+
+        rows.forEach((row) => {
+            // Get the input values for each row
+            const contactName = row.querySelector('[name="customer_contact_name"]')?.value;
+            const contactMobile = row.querySelector('[name="customer_contact_mobile"]')?.value;
+            const contactEmail = row.querySelector('[name="customer_contact_email"]')?.value;
+            const contactDesignation = row.querySelector('[name="customer_contact_designation"]')?.value;
+
+            // Check if all fields are filled, skip empty rows
+            if (contactName && contactMobile && contactEmail && contactDesignation) {
+                // Create an object for this row's data
+                const contactData = {
+                  contactName: contactName,
+                    mobile: contactMobile,
+                    email: contactEmail,
+                    designation: contactDesignation
+                };
+
+                // Append the object to the customerContacts array
+                customerContacts.push(contactData);
+            }
+        });
+
+        // Append the array of customer contacts to FormData as a JSON string
+        formData.append('customerContacts', JSON.stringify(customerContacts));
+
+        // Send AJAX request with formData
+        $.ajax({
+            url: '/api/customer/create',  // API endpoint
+            method: 'POST',
+            processData: false,  // Required for FormData
+            contentType: false,  // Required for FormData
+            data: formData,
+            success: function (response) {
+                $('#add-customer-model').modal('hide');
+                showSuccessToast(`Customer "${formData.get('customer_name')}" added successfully!`);
+                setTimeout(() => location.reload(), 1500);  // Reload page after success
+            },
+            error: function (xhr) {
+                console.error('Error adding customer:', xhr);
+                const response = JSON.parse(xhr.responseText);
+                handleErrorResponse(response);
+            }
+        });
+    });
+}
+
+// Function to handle error responses
+function handleErrorResponse(response) {
+    if (response.message === "area-found") {
+        $('#zone_name_error').addClass('invalid-feedback');
+        $('#area_name_error').removeClass('invalid-feedback');
+    } else if (response.message === "zone-found") {
+        $('#zone_name_error').removeClass('invalid-feedback');
+        $('#area_name_error').addClass('invalid-feedback');
+    }
+}
+
+// Function to delete Customer
+function deleteData(id, customerName) {
+    if (!id) {
         alert("Invalid ID for deletion.");
         return;
-      }
-      //debug
-      console.log("Customer Name in deleteData function", customerName)
-      // Show confirmation modal with the customer name
-      showDeleteConfirmationModal(customerName, () => {
-        // Once confirmed, proceed with the AJAX call
-        $.ajax({
-          url: `/api/customer/delete/${id}`, // URL includes the ID of the item to delete
-          type: 'DELETE',
-          success: function (response) {
+    }
+
+    // Show confirmation modal with the customer name
+    showDeleteConfirmationModal(customerName, () => {
+        ajaxRequest(`/api/customer/delete/${id}`, 'DELETE', null, function(response) {
             if (response.success) {
-              // Show the success toast with the customer name
-              showSuccessToast(`Customer "${customerName}" deleted successfully!`);
-
-              // Optionally, reload the page after success
-              setTimeout(function () {
-                location.reload();
-              }, 1500); // Delay to let the toast show before reloading
+                showSuccessToast(`Customer "${customerName}" deleted successfully!`);
+                setTimeout(() => location.reload(), 1500);
             } else {
-              alert('Error: ' + response.message);
+                alert('Error: ' + response.message);
             }
-          },
-          error: function (xhr, status, error) {
-            console.error('Error deleting data:', error);
+        }, function(xhr) {
+            console.error('Error deleting data:', xhr);
             alert('Failed to delete data. Please try again.');
-          }
         });
-      });
-    }
+    });
+}
 
-    // Function to show delete confirmation modal
-    function showDeleteConfirmationModal(customerName, callback) {
-      // Set the customer name inside the modal
-      document.getElementById('deleteCustomerName').textContent = customerName;
+// Function to generate customer code in customer form model
+function customerCodeGenerator(length = 8) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = 'CUST'; // Prefix for the customer code
 
-      // Initialize the modal
-      const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-
-      // Show the modal
-      deleteModal.show();
-
-      // Attach event listener for confirmation button
-      document.getElementById('confirmDeleteBtn').onclick = function () {
-        // Invoke the callback to delete the item
-        callback();
-
-        // Close the modal after delete is confirmed
-        deleteModal.hide();
-      };
-    }
-
-    // Function to show success toast
-    function showSuccessToast(message) {
-      // Update the toast body with the custom message
-      const toastBody = document.getElementById('successToast').querySelector('.toast-body');
-      toastBody.textContent = message;
-
-      // Initialize and show the toast
-      const successToast = new bootstrap.Toast(document.getElementById('successToast'));
-      successToast.show();
-    }
-
-    // Function to generate customer code in customer form model
-    function customerCodeGenerator(length = 8) {
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let result = 'CUST'; // Prefix for the customer code
-
-      for (let i = 0; i < length; i++) {
+    for (let i = 0; i < length; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length);
         result += characters[randomIndex];
-      }
-
-      document.getElementById('customer_code').value = result;
     }
 
+    document.getElementById('customer_code').value = result;
+}
 
-    // Add a new row in the customer form model
-    document.getElementById('addRow').addEventListener('click', function () {
-      const formRows = document.getElementById('formRows');
-      const newRow = document.createElement('div');
-      newRow.classList.add('row', 'mb-3', 'align-items-center');
-      newRow.innerHTML = `
-      <div class="col-md-3">
-        <div class="mb-3">
-          <label for="contact_name" class="form-label">Contact Name</label>
-          <input type="text" class="form-control" name="contact_name" >
-          <small class="form-text text-muted">contact full name</small>
+// Add a new row in the customer form model
+document.getElementById('addRow').addEventListener('click', function () {
+    const formRows = document.getElementById('formRows');
+    const newRow = document.createElement('div');
+    newRow.classList.add('row', 'mb-3', 'align-items-center');
+    newRow.innerHTML = `
+        <div class="col-md-3">
+            <div class="mb-3">
+                <label class="form-label">Contact Name</label>
+                <input type="text" class="form-control" name="customer_contact_name" >
+                <small class="form-text text-muted">Contact full name</small>
+            </div>
         </div>
-      </div>
-      
-      <div class="col-md-2">
-        <div class="mb-3">
-          <label for="contact_mobile" class="form-label">Contact Mobile</label>
-          <input type="text" class="form-control" name="contact_mobile" >
-          <small class="form-text text-muted">contact mobile number</small>
+
+        <div class="col-md-2">
+            <div class="mb-3">
+                <label class="form-label">Contact Mobile</label>
+                <input type="text" class="form-control" name="customer_contact_mobile" >
+                <small class="form-text text-muted">Contact mobile number</small>
+            </div>
         </div>
-      </div>
-      
-      <div class="col-md-3">
-        <div class="mb-3">
-          <label for="contact_email" class="form-label">Contact Email</label>
-          <input type="email" class="form-control" name="contact_email" >
-          <small class="form-text text-muted">contact email address</small>
+
+        <div class="col-md-3">
+            <div class="mb-3">
+                <label class="form-label">Contact Email</label>
+                <input type="email" class="form-control" name="customer_contact_email" >
+                <small class="form-text text-muted">Contact email address</small>
+            </div>
         </div>
-      </div>
-      
-      <div class="col-md-3">
-        <div class="mb-3">
-          <label for="contact_address" class="form-label">Contact Address</label>
-          <input type="text" class="form-control" name="contact_address">
-          <small class="form-text text-muted">contact address</small>
+
+        <div class="col-md-3">
+            <div class="mb-3">
+                <label class="form-label">Contact Designation</label>
+                <input type="text" class="form-control" name="customer_contact_designation">
+                <small class="form-text text-muted">contact designation</small>
+            </div>
         </div>
-      </div>
-      
-      <!-- Remove row button -->
-      <div class="col-md-1">
-           <div class="mb-3 mt-1">
-            <button type="button" class="btn btn-danger removeRow">
-              <i class="ph ph-minus"></i> 
-            </button>
+
+        <!-- Remove row button -->
+        <div class="col-md-1">
+            <div class="mb-3 mt-1">
+                <button type="button" class="btn btn-danger removeRow">
+                    <i class="ph ph-minus"></i>
+                </button>
+            </div>
         </div>
-      </div>
     `;
-
-      formRows.appendChild(newRow);
-    });
-
-    // Event delegation for removing a row
-    document.getElementById('formRows').addEventListener('click', function (e) {
-      if (e.target.classList.contains('removeRow') || e.target.closest('.removeRow')) {
-        e.target.closest('.row').remove();
-      }
-    });
-
-  </script>
-
-<script>
-$('#add-customer-form').on('submit', function (e) {
-  e.preventDefault();  // Prevent the default form submission
-  console.log("Add Customer Running");
-
-  // Create FormData object
-  var formData = new FormData(this);
-
-  // // Get the selected values for multi-select fields and append them to formData
-  // var grades = $('select[name="customer_grades"]').val();  // Get selected grades
-  // var areas = $('select[name="customer_areas"]').val();    // Get selected areas
-  // var products = $('select[name="customer_products"]').val();  // Get selected products
-  // var firms = $('select[name="customer_firms"]').val();    // Get selected firms
-
-  // // Append the selected values to formData as arrays
-  // if (grades) formData.append('grades', JSON.stringify(grades)); // JSON-encode array
-  // if (areas) formData.append('areas', JSON.stringify(areas));
-  // if (products) formData.append('products', JSON.stringify(products));
-  // if (firms) formData.append('firms', JSON.stringify(firms));
-
-  // // Collect the dynamic contact information fields
-  // var contactsArray = [];
-  // $('#formRows .row').each(function() {
-  //     var contactName = $(this).find('input[name="contact_name"]').val();
-  //     var contactMobile = $(this).find('input[name="contact_mobile"]').val();
-  //     var contactEmail = $(this).find('input[name="contact_email"]').val();
-  //     var contactAddress = $(this).find('input[name="contact_address"]').val();
-
-  //     // Create an object for the current contact and push to the array
-  //     if (contactName && contactMobile && contactEmail && contactAddress) { // Only push if all fields are filled
-  //         contactsArray.push({
-  //             contactName: contactName,
-  //             contactMobile: contactMobile,
-  //             contactEmail: contactEmail,
-  //             contactAddress: contactAddress
-  //         });
-  //     }
-  // });
-
-  // // Append the contacts array to formData as a JSON string
-  // if (contactsArray.length > 0) {
-  //     formData.append('contacts', JSON.stringify(contactsArray));
-  // }
-
-  // Debugging the formData
-  for (var pair of formData.entries()) {
-      console.log(pair[0]+ ', ' + pair[1]);
-  }
-
-  // Send the form data via AJAX
-  $.ajax({
-      url: '/api/customer/create',
-      type: 'POST',
-      data: formData,
-      processData: false, // Don't process the data automatically
-      contentType: false, // Set to false as FormData handles it
-      success: function (response) {
-          alert('Customer added successfully!');
-          $('#add-customer-model').modal('hide'); // Close the modal
-          location.reload(); // Refresh the page to see the updated data
-      },
-      error: function (xhr, status, error) {
-          console.error('Error adding customer:', error);
-          alert('Error: ' + xhr.responseText);
-      }
-  });
+    formRows.appendChild(newRow);
 });
-</script>
+
+// Event delegation for removing a row
+document.getElementById('formRows').addEventListener('click', function (e) {
+    if (e.target.classList.contains('removeRow') || e.target.closest('.removeRow')) {
+        e.target.closest('.row').remove();
+    }
+});
+
+// Initialize the area table and bind add customer function
+$(document).ready(function() {
+    renderAreaTable();
+    addCustomer();
+});
+
+ </script>
+
   <%- include('../../partials/footer') %>

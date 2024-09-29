@@ -100,3 +100,109 @@ function renderTable({ tableClassName, apiURl, columns }) {
     });
   });
 }
+
+// Function to show success toast
+function showSuccessToast(message) {
+  // Create the toast element
+  const toastHTML = `
+    <div class="toast align-items-center text-bg-success border-0 position-fixed" style="top: 20px; right: 20px; z-index: 1055;" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          ${message}
+        </div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  `;
+
+  // Append the toast directly to the body
+  document.body.insertAdjacentHTML('beforeend', toastHTML);
+
+  // Get the last toast that was added to the body
+  const successToast = document.body.lastElementChild;
+
+  // Initialize and show the toast
+  const bootstrapToast = new bootstrap.Toast(successToast);
+  bootstrapToast.show();
+
+  // Remove the toast after it has been shown for a specific duration
+  setTimeout(() => {
+    bootstrapToast.dispose(); // Clean up the toast instance
+    successToast.remove();    // Remove the toast element from the DOM
+  }, 3000); // Adjust the duration (in milliseconds) as needed
+}
+
+
+// Function to show delete confirmation modal
+function showDeleteConfirmationModal(name, callback) {
+  // Create the modal HTML
+  const modalHTML = `
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete: <strong>${name}</strong>?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Append the modal to the body
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+  // Initialize the modal
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+
+  // Show the modal
+  deleteModal.show();
+
+  // Attach event listener for confirmation button
+  document.getElementById('confirmDeleteBtn').onclick = function() {
+    // Invoke the callback to delete the item
+    callback();
+
+    // Remove the modal from the DOM
+    deleteModal.hide();
+    document.getElementById('deleteConfirmationModal').remove(); // Clean up the modal element
+  };
+
+  // Cleanup modal when closed
+  deleteModal._element.addEventListener('hidden.bs.modal', function() {
+    deleteModal.dispose();
+    document.getElementById('deleteConfirmationModal').remove(); // Remove the modal from DOM
+  });
+}
+
+
+// Utility function to handle AJAX requests
+function ajaxRequest(url, type, data, successCallback, errorCallback) {
+  let ajaxSettings = {
+      url: url,
+      type: type,
+      success: successCallback,
+      error: errorCallback
+  };
+
+  // Check if data is a FormData object, adjust processData and contentType accordingly
+  if (data instanceof FormData) {
+      ajaxSettings.data = data;
+      ajaxSettings.processData = false; // Prevent jQuery from processing the FormData
+      ajaxSettings.contentType = false; // Prevent jQuery from setting the content type header
+  } else {
+      ajaxSettings.data = data;
+      ajaxSettings.processData = true;
+      ajaxSettings.contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
+  }
+
+  // Perform the AJAX request
+  $.ajax(ajaxSettings);
+}

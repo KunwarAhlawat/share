@@ -1,7 +1,7 @@
 const { MasterAreaModel, MasterCustomerModel  } = require('../Models/index'); ; 
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
-// List all areas
+// Controller Function: List all areas
 exports.getAreas = async (req, res) => {
     try {
         const customers = await MasterCustomerModel.findAll();
@@ -21,14 +21,19 @@ exports.getAreas = async (req, res) => {
     }
 };
 
-// List all areas (API)
+// Controller Function:  List all areas (API)
 exports.getAreasApi = async (req, res) => {
     // Debugging: Function has been called
     console.log("Request received at getAreasApi");
 
     try {
         // Fetch all areas from the database
-        const areas = await MasterAreaModel.findAll();
+        const areas = await MasterAreaModel.findAll({
+            include: [{
+                model: MasterCustomerModel,
+                as: 'customers'  // Ensure that this matches the alias defined in your association
+            }]
+        });
         
         
         // Debugging: Log the number of areas fetched
@@ -55,9 +60,53 @@ exports.getAreasApi = async (req, res) => {
     }
 };
 
+// Controller Function: Get one area (API)
+exports.getOneAreaApi = async (req, res) => {
+    console.log("Request received at getOneAreaApi");
 
+    try {
+        const areaId = Number(req.params.id); 
 
-// Controller Function: Create a new area
+        // Fetch the area and include related customers
+        const area = await MasterAreaModel.findOne({
+            where: { areaId: areaId },
+            include: [{
+                model: MasterCustomerModel,
+                as: 'customers'  // Ensure that this matches the alias defined in your association
+            }]
+        });
+
+        // Check if the area exists
+        if (!area) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Area not found." 
+            });
+        }
+
+        console.log(`Area with ID ${areaId} retrieved successfully.`, area); 
+        console.log("This is the area with related customers:", area);
+
+        // Send the response with the data (area and its customers)
+        return res.status(200).json({ 
+            success: true, 
+            message: "Area retrieved successfully.", 
+            data: area 
+        });
+
+    } catch (error) {
+        console.error("Error occurred in getOneAreaApi:", error);
+
+        // Send error response
+        return res.status(500).json({ 
+            success: false, 
+            message: "Failed to retrieve area. Please try again later.", 
+            error: error.message 
+        });
+    }
+};
+
+// Controller Function: Create a new area (API)
 exports.createAreaApi = async (req, res) => {
     console.log("CreateAreaApi is requested", req.body); 
 
@@ -124,11 +173,63 @@ exports.createAreaApi = async (req, res) => {
     }
 };
 
+// Controller Function: Update an existing area (API)
+exports.updateAreaApi = async (req, res) => {
+    console.log("UpdateAreaApi is requested", req.body);
 
+    try {
+        const { edit_area_name, edit_area_district, edit_area_zone, edit_state, edit_customer_ids } = req.body;
 
+        // Find the area to be updated by ID
+        const area = await MasterAreaModel.findByPk(Number(req.params.id));
 
+        if (!area) {
+            return res.status(404).send({
+                success: false,
+                message: "Area not found.",
+            });
+        }
 
-// Delete an area by ID
+   
+
+        // Prepare the updated data
+        const updatedData = {
+            areaName: edit_area_name,
+            districtName: edit_area_district,
+            zoneName: edit_area_zone,
+            stateName: edit_state
+        };
+
+        // Update the area details
+        await area.update(updatedData);
+
+        // Check if customer IDs are provided and update the associations
+        if (edit_customer_ids && edit_customer_ids.length > 0) {
+            await area.setCustomers(edit_customer_ids);
+        } else {
+            // If no customers are provided, clear the existing associations
+            await area.setCustomers([]);
+        }
+
+        // Log successful area update
+        console.log("Updated area successfully:", area);
+
+        return res.status(200).send({
+            success: true,
+            message: "Area updated successfully.",
+            data: area,
+        });
+    } catch (error) {
+        console.error("Error updating area:", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to update area. Please try again later.",
+            error: error.message,
+        });
+    }
+};
+
+// Controller Function:Delete an area by ID (API)
 exports.deleteAreaApi = async (req, res) => {
     try {
         // Extract area ID from request parameters

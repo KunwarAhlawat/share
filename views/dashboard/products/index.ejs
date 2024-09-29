@@ -33,6 +33,7 @@
               <tr>
                 <th>Product</th>
                 <th>Product Groups</th>
+                <th>Customers</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -54,69 +55,190 @@
 <!-- /page content -->
 
 <!-- Models -->
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+<!-- Add Product Modal -->
+<div id="add-product-model" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog modal-full">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title">Add Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to delete the Product: <strong id="deleteProductName"></strong> ?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+        <form id="add-product-form">
+         
+          <!-- Product Basic Information -->
+          <div class="form-section mb-4">
+            <div class="row">
+              <!-- Product Name -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="product_name" class="form-label">Product Name*</label>
+                  <input type="text" id="product_name" class="form-control" name="product_name" minlength="4"
+                    maxlength="20" pattern="^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$" required>
+                  <small class="form-text text-muted">As per official documents</small>
+                  <div id="product_name_error" class="invalid-feedback">Product with the same name already exists.</div>
+                </div>
+              </div>
+
+              <!-- Customer Selection -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Select Customer</label>
+                  <button type="button" class="btn btn-link">Add New Customer</button>
+                  <select class="form-control multiselect" multiple="multiple" name="customer_ids"
+                    data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                    <% customers.forEach(function(item) { %>
+                      <option value="<%= item.customerId %>">
+                        <%= item.customerName %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the applicable customer(s)</small>
+                </div>
+              </div>
+            
+              <!-- Product Group -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="product_group" class="form-label">Product Group*</label>
+                  <select class="form-control" name="productGroup_ids" required>
+                    <option value="" disabled selected>Select Product Group</option>
+                    <% productGroups.forEach(function(group) { %>
+                      <option value="<%= group.productGroupId %>">
+                        <%= group.productGroupName %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the applicable product group</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Submission -->
+          <div class="mb-4">
+            <button type="submit" class="btn btn-success">Add Product</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </div>
 
-
-<!-- Toast Notification -->
-<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1055;">
-  <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body">
-        Product deleted successfully!
+<!-- Edit Product Modal -->
+<div id="edit-product-model" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog modal-full">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      <div class="modal-body">
+        <form id="edit-product-form">
+         
+          <!-- Product Basic Information -->
+          <div class="form-section mb-4">
+            <div class="row">
+              <!-- Product Name -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="edit_product_name" class="form-label">Product Name*</label>
+                  <input type="text" id="edit_product_name" class="form-control" name="edit_product_name" minlength="4"
+                    maxlength="20" pattern="^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$" required>
+                  <small class="form-text text-muted">As per official documents</small>
+                  <div id="edit_product_name_error" class="invalid-feedback">Product with the same name already exists.</div>
+                </div>
+              </div>
+
+              <!-- Customer Selection -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Select Customer</label>
+                  <button type="button" class="btn btn-link">Add New Customer</button>
+                  <select id="edit_customer_ids" class="form-control multiselect" multiple="multiple" name="edit_customer_ids"
+                    data-enable-filtering="true" data-enable-case-insensitive-filtering="true">
+                    <% customers.forEach(function(item) { %>
+                      <option value="<%= item.customerId %>">
+                        <%= item.customerName %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the applicable customer(s)</small>
+                </div>
+              </div>
+            
+              <!-- Product Group -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="edit_product_group" class="form-label">Product Group*</label>
+                  <select id="edit_productGroup_ids" class="form-control" name="edit_productGroup_ids" required>
+                    <option value="" disabled selected>Select Product Group</option>
+                    <% productGroups.forEach(function(group) { %>
+                      <option value="<%= group.productGroupId %>">
+                        <%= group.productGroupName %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <small class="form-text text-muted">Select the applicable product group</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Submission -->
+          <div class="mb-4">
+            <button type="submit" class="btn btn-success">Save</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>
 
 
 <script>
-   // product table
-   renderTable({
-      tableClassName: '.datatable-nested', apiURl: '/api/products', columns: [
-        { data: "productName" },
-        { data: "productGroup" },
-        {
-          data: null,
-          className: "text-center",
-          render: function (data, type, row) {
-            return `
-            <button type="button" class="btn btn-primary btn-sm" 
-                    onclick="setData('${row.productId}','${row.productName}')">
-                <i class="ph ph-pencil"></i>
-            </button>
-            <button type="button" class="btn btn-danger btn-sm ms-2" 
-                    onclick="deleteData('${row.productId}','${row.productName}')">
-                <i class="ph ph-trash"></i>
-            </button>
-        `;
-          }
-        }
-
-      ]
+  // Function to render area table
+function renderAreaTable() {
+    renderTable({
+        tableClassName: '.datatable-nested', 
+        apiURl: '/api/products', 
+        columns: [
+            { data: "productName" },
+            {data: "productGroups.productGroupName"},
+            {
+                data: "master_customers", 
+                render: function (data, type, row) {
+                    if (Array.isArray(data) && data.length > 0) {
+                        // Join customer names into a single string
+                        
+                        return data.map(master_customers => master_customers.customerName).join(', ');
+                    } else {
+                        return 'No Customers';
+                    }
+                }
+            },
+            {
+                data: null,
+                className: "text-center",
+                render: function (data, type, row) {
+                    return `
+                    <button type="button" class="btn btn-primary btn-sm" 
+                            onclick="setData('${row.productId}','${row.productName}')">
+                        <i class="ph ph-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm ms-2" 
+                            onclick="deleteData('${row.productId}','${row.productName}')">
+                        <i class="ph ph-trash"></i>
+                    </button>
+                `;
+                }
+            }
+        ]
     });
-
+}
 
 // Main function to handle delete request
 function deleteData(id, productName) {
-    // Check if the ID is valid
     if (!id) {
         alert("Invalid ID for deletion.");
         return;
@@ -124,64 +246,96 @@ function deleteData(id, productName) {
 
     // Show confirmation modal with the product name
     showDeleteConfirmationModal(productName, () => {
-        // Once confirmed, proceed with the AJAX call
-        $.ajax({
-            url: `/api/product/delete/${id}`, // URL includes the ID of the item to delete
-            type: 'DELETE',
-            success: function(response) {
-                if (response.success) {
-                    // Show the success toast with the product name
-                    showSuccessToast(`Product "${productName}" deleted successfully!`);
-                    
-                    // Optionally, reload the page after success
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500); // Delay to let the toast show before reloading
-                } else {
-                    alert('Error: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error deleting data:', error);
-                alert('Failed to delete data. Please try again.');
+        ajaxRequest(`/api/product/delete/${id}`, 'DELETE', null, function(response) {
+            if (response.success) {
+                showSuccessToast(`Product "${productName}" deleted successfully!`);
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                alert('Error: ' + response.message);
             }
+        }, function(xhr) {
+            console.error('Error deleting data:', xhr);
+            alert('Failed to delete data. Please try again.');
         });
     });
 }
 
-  
-// Function to show delete confirmation modal
-function showDeleteConfirmationModal(productName, callback) {
-    // Set the product name inside the modal
-    document.getElementById('deleteProductName').textContent = productName;
+// Function to populate the product form
+function populateAreaForm(id) {
+    const updateModel = new bootstrap.Modal(document.getElementById('edit-product-model'));
+    updateModel.show();
 
-    // Initialize the modal
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-    
-    // Show the modal
-    deleteModal.show();
-    
-    // Attach event listener for confirmation button
-    document.getElementById('confirmDeleteBtn').onclick = function() {
-        // Invoke the callback to delete the item
-        callback();
+    ajaxRequest(`/api/product/${id}`, 'GET', null, function(response) {
+        const product = response.data;
+        $('#edit_product_name').val(product.productName);
+        $('#edit_productGroup_ids').val(product.productGroupId).change();
 
-        // Close the modal after delete is confirmed
-        deleteModal.hide();
-    };
-}
-
-// Function to show success toast
-function showSuccessToast(message) {
-    // Update the toast body with the custom message
-    const toastBody = document.getElementById('successToast').querySelector('.toast-body');
-    toastBody.textContent = message;
-
-    // Initialize and show the toast
-    const successToast = new bootstrap.Toast(document.getElementById('successToast'));
-    successToast.show();
+        const customerIds = product.customers.map(customer => customer.customerId);
+        $('#edit_customer_ids').val(customerIds);
+        $('#edit_customer_ids').multiselect('refresh');
+    }, function(xhr) {
+        console.error('Error fetching product details:', xhr);
+    });
 }
 
 
+// Function to handle the edit request and form submission
+function setData(id, productName) {
+    populateAreaForm(id); 
+
+    // Use .off() to remove any previous event listeners to avoid multiple bindings
+    $('#edit-product-form').off('submit').on('submit', function (e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        ajaxRequest(`/api/product/update/${id}`, 'PUT', formData, function(response) {
+            $('#edit-product-model').modal('hide');
+            showSuccessToast(`Product "${formData.get('edit_product_name')}" updated successfully!`);
+            setTimeout(() => location.reload(), 1500);
+        }, function(xhr) {
+            console.error('Error:', xhr);
+            const response = JSON.parse(xhr.responseText);
+            handleErrorResponse(response);
+        });
+    });
+}
+
+
+
+// Function to handle adding a new product
+function addProduct() {
+    $('#add-product-form').on('submit', function (e) {
+        e.preventDefault();  
+        const formData = new FormData(this);
+
+        ajaxRequest('/api/product/create', 'POST', formData, function(response) {
+            $('#add-product-model').modal('hide');
+            showSuccessToast(`Product "${formData.get('product_name')}" added successfully!`);
+            setTimeout(() => location.reload(), 1500);
+        }, function(xhr) {
+            console.error('Error adding product:', xhr);
+            const response = JSON.parse(xhr.responseText);
+            handleErrorResponse(response);
+        });
+    });
+}
+
+
+
+// Function to handle error responses
+function handleErrorResponse(response) {
+  $('#edit_product_name_error').addClass('invalid-feedback');
+    if (response.message === "product-found") {
+        $('#edit_product_name_error').removeClass('invalid-feedback');
+    }
+}
+
+// Initialize the area table and bind add area function
+$(document).ready(function() {
+    renderAreaTable();
+    addProduct();
+   
+});
 </script>
+
 <%- include('../../partials/footer.ejs') %>

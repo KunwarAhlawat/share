@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
-
+const { Op } = require('sequelize');
 const {
   sequelize,
   MasterCustomerModel,
@@ -45,190 +45,320 @@ exports.getCustomers = async (req, res) => {
   }
 };
 
-// List all customers (API)
+// Controller Function: List all customers (API)
 exports.getCustomersApi = async (req, res) => {
-  // Debugging: Function has been called
-  console.log("Request received at getCustomersApi");
+    console.log("Request received at getCustomersApi");
 
-  try {
-      // Fetch all customers from the database
-      const customers = await MasterCustomerModel.findAll({
-        include: [
-            { model: CustomerContactsModel }, 
-            { model:  MasterGradeModel },
-            { model:  MasterAreaModel },
-            { model:  MasterCategoriesModel },
-            { model:  MasterFirmModel },
-        ]
-    });
-      //debug 
-    //   console.log("Fetched customers:", customers);
-      // Debugging: Log the number of customers fetched
-    //   console.log(`Fetched ${customers.length} customers successfully from the API. ${customers}`);
-
-      // Send the response with the data
-      return res.status(200).json({ 
-          success: true, 
-          message: "Customers retrieved successfully", 
-          data: customers 
-      });
-
-  } catch (error) {
-      // Error handling: Log the error details
-      console.error("Error occurred in getCustomersApi:", error);
-
-      // Send error response
-      return res.status(500).json({ 
-          success: false, 
-          message: "Failed to retrieve customers. Please try again later.", 
-          error: error.message 
-      });
-  }
-};
-
-// Create a new customer
-exports.createCustomerApi = async (req, res) => {
     try {
-        // Extract customer data from request body
-        // const { categoryName } = req.body; 
-     
+        // Fetch all customers from the database
+        const customers = await MasterCustomerModel.findAll({
+            include: [{
+                model: MasterAreaModel,
+                as: 'area'  // Ensure this matches the alias defined in your association
+            },
+            {
+                model: MasterCategoriesModel,
+                as: 'categories'  // Ensure this matches the alias defined in your association
+            },
+            {
+                model: CustomerContactsModel,
+                as: 'contacts'  // Ensure this matches the alias defined in your association
+            },{
+                model: MasterFirmModel,
+                as: 'firms'  // Ensure this matches the alias defined in your association
+            },
+            {
+                model: MasterGradeModel,
+                as: 'grade'  // Ensure this matches the alias defined in your association
+            },{
+                model: MasterProductsModel,
+                as: 'products'  // Ensure this matches the alias defined in your association
+            }]
+        });
 
-        // Prepare the resolved data
-        const resolvedData = {
-            customerId: uuidv4().replace(/-/g, ''), 
-            customerCode: "kkkkkk", 
-            customerName: "Kunwar Ahlawat", 
-            status: "UNVERIFIED", 
-            customerStatus: "inactive", 
-            address: "Near Church Town Daurala Meerut", 
-            pincode: "250221", 
-            referenceName1: "Uddeshya", 
-            reference1ContactNumber: "7906714501", 
-            referenceName2: "Pooja", 
-            reference2ContactNumber: "8077996085", 
-            creditLimit: 1000, 
-            creditDays: 10, 
-            allotmentId: uuidv4().replace(/-/g, ''), 
-          
+        console.log(`Fetched ${customers.length} customers successfully from the API.`);
 
-        };
-
-        // debug
-        console.log("Resolved Data", resolvedData)
-        // Create a new customer
-        const newCustomer = await MasterCustomerModel.create(resolvedData);
-
-        // Log successful customer creation
-        console.log("Created new customer successfully:", newCustomer);
-
-        return res.status(201).send({
-            success: true,
-            message: "Customer created successfully.",
-            data: newCustomer,
+        return res.status(200).json({ 
+            success: true, 
+            message: "Customers retrieved successfully", 
+            data: customers 
         });
     } catch (error) {
-        console.error("Error creating customer:", error);
-        return res.status(500).send({
-            success: false,
-            message: "Failed to create customer. Please try again later.",
-            error: error.message, 
+        console.error("Error occurred in getCustomersApi:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Failed to retrieve customers. Please try again later.", 
+            error: error.message 
         });
     }
 };
 
-// Delete an customer by ID
-exports.deleteCustomerApi = async (req, res) => {
-    try {
-        // Extract customer ID from request parameters
-        const { id } = req.params;
+// Controller Function: Get one customer (API)
+exports.getOneCustomerApi = async (req, res) => {
+    console.log("Request received at getOneCustomerApi");
 
-        // Check if the customer exists before attempting to delete
-        const customer = await MasterCustomerModel.findByPk(id);
+    try {
+        const customerId = Number(req.params.id);
+
+        // Fetch the customer and include related areas
+        const customer = await MasterCustomerModel.findOne({
+            where: { customerId: customerId },
+            include: [{
+                model: MasterAreaModel,
+                as: 'areas'  // Ensure this matches the alias defined in your association
+            }]
+        });
+
         if (!customer) {
-            return res.status(404).send({
+            return res.status(404).json({
                 success: false,
-                message: "Customer not found.",
+                message: "Customer not found."
             });
         }
 
-        // Delete the customer
+        console.log(`Customer with ID ${customerId} retrieved successfully.`, customer);
+
+        return res.status(200).json({
+            success: true,
+            message: "Customer retrieved successfully.",
+            data: customer
+        });
+    } catch (error) {
+        console.error("Error occurred in getOneCustomerApi:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to retrieve customer. Please try again later.",
+            error: error.message
+        });
+    }
+};
+
+// Controller Function: Create a new customer (API)
+exports.createCustomerApi = async (req, res) => {
+    console.log("CreateCustomerApi is requested", req.body);
+
+    try {
+        const {
+            customer_code, 
+            customer_name, 
+            status, 
+            customer_status, 
+            customer_address, 
+            customer_pincode, 
+            customer_grade, 
+            customer_area, 
+            customer_products, 
+            customer_firms,
+            customer_categories,
+            customerContacts,
+            customer_credit, 
+            customer_credit_days, 
+            customer_reference_1_name, 
+            customer_reference_1_contact,
+            customer_reference_2_name, 
+            customer_reference_2_contact, 
+        } = req.body;
+
+     
+        // Check if the customer with the same code or name already exists
+        const foundCustomer = await MasterCustomerModel.findOne({
+            where: {
+                [Op.or]: [
+                    { customerName: customer_name },
+                    { customerCode: customer_code }
+                ]
+            }
+        });
+
+        // If a customer is found with the same code or name, return an error
+        if (foundCustomer) {
+            const errorMessage = foundCustomer.customerName === customer_name
+                ? "customer-found"
+                : "code-found";
+
+            return res.status(400).send({
+                success: false,
+                message: errorMessage
+            });
+        }
+
+        // Preparing data for customer creation
+        const resolvedData = {
+            customerId: uuidv4().replace(/-/g, ''), // Generate UUID without dashes
+            customerCode: customer_code,
+            customerName: customer_name,
+            status: status,
+            pincode: customer_pincode || null,
+            address: customer_address || null,
+            referenceName1: customer_reference_1_name || null,
+            reference1ContactNumber: customer_reference_1_contact || null,
+            referenceName2: customer_reference_2_name || null,
+            reference2ContactNumber: customer_reference_2_contact || null,
+            creditLimit: customer_credit || null,
+            creditDays: customer_credit_days || null,
+            customerStatus: customer_status || null
+        };
+
+        // Create the new customer in the database
+        const newCustomer = await MasterCustomerModel.create(resolvedData);
+
+        // Associate grade if provided
+        if (customer_grade) {
+            await newCustomer.setGrade(customer_grade);
+        }
+
+        // Associate area if provided
+        if (customer_area) {
+            await newCustomer.setArea(customer_area);
+        }
+
+        // Associate products if provided
+        if (customer_products && customer_products.length > 0) {
+            await newCustomer.setProducts(customer_products);
+        }
+
+        // Associate firms if provided
+        if (customer_firms && customer_firms.length > 0) {
+            await newCustomer.setFirms(customer_firms);
+        }
+
+        // Associate categories if provided
+        if (customer_categories && customer_categories.length > 0) {
+            await newCustomer.setCategories(customer_categories);
+ 
+        }
+
+
+        console.log("Type check for customer Contact",typeof customerContacts);
+        const newCustomerContact = JSON.parse(customerContacts);
+// Associate customer contacts if provided and if it's an array
+if (newCustomerContact && newCustomerContact.length > 0) {
+    try {
+        // debug
+        console.log("Customer Contact Add running", newCustomerContact);
+
+        // Create customer contacts and associate them with the customer
+        const contacts = await Promise.all(
+            newCustomerContact.map(contact => {
+                return CustomerContactsModel.create({
+                    contactId: uuidv4().replace(/-/g, ''),
+                    customerId: newCustomer.customerId,  // Associate with customerId
+                    ...contact
+                });
+            })
+        );
+
+        console.log("From Customer Contact: ", contacts);
+
+        // Assign the created contacts to the new customer (if alias 'contacts' is set up correctly)
+        newCustomer.contacts = contacts;  
+
+    } catch (error) {
+        console.error("Error while adding customer contacts:", error);
+    }
+}
+
+
+
+        
+
+        console.log("Created new customer successfully:", newCustomer);
+
+        // Return success response
+        return res.status(201).send({
+            success: true,
+            message: "Customer created successfully.",
+            data: newCustomer
+        });
+
+    } catch (error) {
+        console.error("Error creating customer:", error);
+
+        // Return error response
+        return res.status(500).send({
+            success: false,
+            message: "Failed to create customer. Please try again later.",
+            error: error.message
+        });
+    }
+};
+
+
+// Controller Function: Update an existing customer (API)
+exports.updateCustomerApi = async (req, res) => {
+    console.log("UpdateCustomerApi is requested", req.body);
+
+    try {
+        const { edit_customer_name, edit_customer_code, edit_customer_grade, edit_area_ids } = req.body;
+
+        const customer = await MasterCustomerModel.findByPk(Number(req.params.id));
+
+        if (!customer) {
+            return res.status(404).send({
+                success: false,
+                message: "Customer not found."
+            });
+        }
+
+        const updatedData = {
+            customerName: edit_customer_name,
+            customerCode: edit_customer_code,
+            gradeId: edit_customer_grade
+        };
+
+        await customer.update(updatedData);
+
+        if (edit_area_ids && edit_area_ids.length > 0) {
+            await customer.setAreas(edit_area_ids);
+        } else {
+            await customer.setAreas([]);
+        }
+
+        console.log("Updated customer successfully:", customer);
+
+        return res.status(200).send({
+            success: true,
+            message: "Customer updated successfully.",
+            data: customer
+        });
+    } catch (error) {
+        console.error("Error updating customer:", error);
+        return res.status(500).send({
+            success: false,
+            message: "Failed to update customer. Please try again later.",
+            error: error.message
+        });
+    }
+};
+
+// Controller Function: Delete a customer by ID (API)
+exports.deleteCustomerApi = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const customer = await MasterCustomerModel.findByPk(id);
+
+        if (!customer) {
+            return res.status(404).send({
+                success: false,
+                message: "Customer not found."
+            });
+        }
+
         await customer.destroy();
 
-        // Log successful customer deletion
         console.log("Deleted customer successfully:", customer);
 
         return res.status(200).send({
             success: true,
-            message: "Customer deleted successfully.",
+            message: "Customer deleted successfully."
         });
     } catch (error) {
         console.error("Error deleting customer:", error);
         return res.status(500).send({
             success: false,
             message: "Failed to delete customer. Please try again later.",
-            error: error.message,
+            error: error.message
         });
     }
 };
-
-
-// Create a new customer
-exports.createCustomerApi = async (req, res) => {
-
-    // debug
-    console.log("Create Customer Api has called",req.body);
-    try {
-        // Access the form data from req.body
-        const customerCode = req.body.customer_code; // Make sure the input name matches
-        const grades = JSON.parse(req.body.grades || '[]'); // Parse selected grades
-        const areas = JSON.parse(req.body.areas || '[]'); // Parse selected areas
-        const products = JSON.parse(req.body.products || '[]'); // Parse selected products
-        const firms = JSON.parse(req.body.firms || '[]'); // Parse selected firms
-
-        // Parse contacts array
-        const contacts = JSON.parse(req.body.contacts || '[]');
-
-        // Perform your logic to save the customer data
-        // For example:
-        const newCustomer = await MasterCustomerModel.create({
-            customer_code: customerCode,
-            grades: grades,
-            areas: areas,
-            products: products,
-            firms: firms,
-            contacts: contacts // You may need to adjust this depending on your model
-        });
-
-        res.status(201).json({ message: 'Customer created successfully!', data: newCustomer });
-    } catch (error) {
-        console.error('Error creating new customer:', error);
-        res.status(500).json({ message: 'Unexpected error creating new customer', error: error.message });
-    }
-};
-
-
-// // Update an existing customer
-// exports.updateCustomer = async (req, res) => {
-//   try {
-//     const { name, email, firmIds, categoryIds, productIds } = req.body;
-//     const customer = await MasterCustomerModel.findByPk(req.params.id);
-
-//     if (!customer) {
-//       return res.status(404).send({ message: "Customer not found." });
-//     }
-
-//     // Update customer details
-//     await customer.update({ name, email });
-//     console.log("Customer updated successfully:", customer.id);
-
-//     // Update relationships if provided
-//     if (firmIds) await customer.setFirms(firmIds);
-//     if (categoryIds) await customer.setCategories(categoryIds);
-//     if (productIds) await customer.setProducts(productIds);
-
-//     res.redirect('/customers');
-//   } catch (error) {
-//     console.error("Error updating customer:", error);
-//     res.status(500).send({ message: "Failed to update customer. Please try again later." });
-//   }
-// };

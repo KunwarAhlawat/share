@@ -195,7 +195,6 @@ module.exports = function(sequelize, DataTypes) {
     customerStatus: {
       type: DataTypes.ENUM('active', 'inactive', 'closed'),
       allowNull: false,
-      defaultValue: 'active',
       comment: "Status of the customer account"
     },
     allotmentId: {

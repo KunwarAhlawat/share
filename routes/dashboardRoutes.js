@@ -25,7 +25,9 @@ router.get('/dashboard/customers', customersController.getCustomers);
 
 // api
 router.get('/api/customers', customersController.getCustomersApi);
-router.post('/api/customer/create',customersController.createCustomerApi);
+router.get('/api/customer/:id', customersController.getOneCustomerApi);
+router.post('/api/customer/create',upload.single('file'), customersController.createCustomerApi);
+router.put('/api/customer/update/:id',upload.single('file'), customersController.updateCustomerApi);
 router.delete('/api/customer/delete/:id', customersController.deleteCustomerApi);
 
 // employees routes-----------------------------------------------------------------------------------------------------
@@ -42,15 +44,19 @@ router.get('/dashboard/firms',firmsController.getFirms );
 
 // api
 router.get('/api/firms', firmsController.getFirmsApi);
-router.get('/api/firm/create',firmsController.createFirmsApi);
-router.delete('/api/firms/delete/:id', firmsController.deleteFirmApi);
+router.get('/api/firm/:id', firmsController.getOneFirmApi);
+router.post('/api/firm/create',upload.single('file'), firmsController.createFirmApi);
+router.put('/api/firm/update/:id',upload.single('file'), firmsController.updateFirmApi);
+router.delete('/api/firm/delete/:id', firmsController.deleteFirmApi);
 
 // products routes--------------------------------------------------------------------------------------------------
 router.get('/dashboard/products',productsController.getProducts );
 
 // api
 router.get('/api/products', productsController.getProductsApi);
-router.get('/api/product/create',productsController.createProductsApi);
+router.get('/api/product/:id', productsController.getOneProductApi);
+router.post('/api/product/create',upload.single('file'), productsController.createProductApi);
+router.put('/api/product/update/:id',upload.single('file'), productsController.updateProductApi);
 router.delete('/api/product/delete/:id', productsController.deleteProductApi);
 
 // area routes----------------------------------------------------------------------------------------------------
@@ -58,7 +64,9 @@ router.get('/dashboard/areas',areasController.getAreas);
 
 // api
 router.get('/api/areas', areasController.getAreasApi);
+router.get('/api/area/:id', areasController.getOneAreaApi);
 router.post('/api/area/create',upload.single('file'), areasController.createAreaApi);
+router.put('/api/area/update/:id',upload.single('file'), areasController.updateAreaApi);
 router.delete('/api/area/delete/:id', areasController.deleteAreaApi);
 
 // grade routes-------------------------------------------------------------------------------------------------
@@ -66,7 +74,9 @@ router.get('/dashboard/grades',gradesController.getGrades);
 
 // api
 router.get('/api/grades', gradesController.getGradesApi);
-router.get('/api/grade/create',gradesController.createGradeApi);
+router.get('/api/grade/:id', gradesController.getOneGradeApi);
+router.post('/api/grade/create',upload.single('file'), gradesController.createGradeApi);
+router.put('/api/grade/update/:id',upload.single('file'), gradesController.updateGradeApi);
 router.delete('/api/grade/delete/:id', gradesController.deleteGradeApi);
 
 
@@ -76,7 +86,9 @@ router.get('/dashboard/product-groups',productGroupsController.getProductGroups)
 
 // api
 router.get('/api/product-groups', productGroupsController.getProductGroupsApi);
-router.get('/api/product-group/create',productGroupsController.createProductGroupApi);
+router.get('/api/product-group/:id', productGroupsController.getOneProductGroupApi);
+router.post('/api/product-group/create',upload.single('file'), productGroupsController.createProductGroupApi);
+router.put('/api/product-group/update/:id',upload.single('file'), productGroupsController.updateProductGroupApi);
 router.delete('/api/product-group/delete/:id', productGroupsController.deleteProductGroupApi);
 
 
@@ -85,7 +97,9 @@ router.get('/dashboard/categories',categoriesController.getCategories);
 
 // api
 router.get('/api/categories', categoriesController.getCategoriesApi);
-router.get('/api/category/create',categoriesController.createCategoryApi);
+router.get('/api/category/:id', categoriesController.getOneCategoryApi);
+router.post('/api/category/create',upload.single('file'), categoriesController.createCategoryApi);
+router.put('/api/category/update/:id',upload.single('file'), categoriesController.updateCategoryApi);
 router.delete('/api/category/delete/:id', categoriesController.deleteCategoryApi);
 
 

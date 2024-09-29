@@ -38,7 +38,9 @@ app.use('/', pageRoutes);
 app.use('/', dashboardRoutes);
 
 // Sync Sequelize models with the database
-sequelize.sync()
+// sequelize.sync()
+sequelize.sync({alter:true})
+// sequelize.sync({ force: true })
     .then(() => {
         console.log('Database & tables created!');
     })
